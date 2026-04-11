@@ -1,5 +1,6 @@
 import { listRecentArticles } from "@/lib/article-public";
 import { HomeArticleFilters, type HomeArticle } from "@/components/home-article-filters";
+import { SiteContainer } from "@/components/site-container";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 60;
@@ -21,21 +22,28 @@ export default async function HomePage() {
     }));
 
   return (
-    <main className="mx-auto max-w-4xl flex-1 px-4 py-12">
-      <section className="text-center">
-        <p className="font-mono text-xs uppercase tracking-[0.4em] text-[#ff2bd6]">Signal / noise</p>
-        <h1 className="mt-4 font-mono text-4xl font-bold text-[#00ff41] drop-shadow-[0_0_18px_rgba(0,255,65,0.25)] md:text-5xl">
-          Disassemble the headline.
-        </h1>
-        <p className="mx-auto mt-4 max-w-xl text-sm leading-relaxed text-[#a8a8a8]">
-          Transparent sourcing, alignment telemetry, and terminal-grade deconstructions of the mainstream narrative.
-        </p>
-      </section>
+    <main className="flex-1 py-10 sm:py-14 lg:py-16">
+      <SiteContainer max="md">
+        <section className="panel px-5 py-8 text-center sm:px-8 sm:py-10">
+          <p className="font-mono text-[10px] font-medium uppercase tracking-[0.35em] text-[#ff2bd6] sm:text-xs">
+            Signal / noise
+          </p>
+          <h1 className="mt-4 font-mono text-[1.65rem] font-bold leading-tight tracking-tight text-[#00ff41] drop-shadow-[0_0_18px_rgba(0,255,65,0.22)] sm:text-4xl lg:text-5xl">
+            Disassemble the headline.
+          </h1>
+          <p className="mx-auto mt-4 max-w-xl text-sm leading-relaxed text-[#a8a8a8] sm:text-base">
+            Transparent sourcing, alignment telemetry, and terminal-grade deconstructions of the mainstream narrative.
+          </p>
+        </section>
 
-      <section className="mt-16">
-        <h2 className="mb-6 font-mono text-lg text-[#e0e0e0]">Latest wire</h2>
-        <HomeArticleFilters articles={articles} />
-      </section>
+        <section className="mt-12 sm:mt-16 lg:mt-20">
+          <div className="mb-6 flex flex-col gap-2 sm:mb-8 sm:flex-row sm:items-end sm:justify-between">
+            <h2 className="font-mono text-lg font-semibold tracking-wide text-[#e8e8e8] sm:text-xl">Latest wire</h2>
+            <p className="text-xs text-[#666] sm:text-sm">Filter by channel, transparency, or date.</p>
+          </div>
+          <HomeArticleFilters articles={articles} />
+        </section>
+      </SiteContainer>
     </main>
   );
 }

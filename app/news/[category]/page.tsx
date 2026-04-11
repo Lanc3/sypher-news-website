@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
+import { SiteContainer } from "@/components/site-container";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 60;
@@ -32,25 +33,39 @@ export default async function CategoryArticlesPage({ params }: Props) {
   }
 
   return (
-    <main className="mx-auto max-w-3xl px-4 py-12 font-mono text-[#e0e0e0]">
-      <p className="text-xs uppercase tracking-[0.3em] text-[#ff2bd6]">Category</p>
-      <h1 className="mt-2 text-3xl text-[#00ff41]">{category.name}</h1>
-      {category.description ? <p className="mt-3 text-sm text-[#9a9a9a]">{category.description}</p> : null}
-      <ul className="mt-10 space-y-4">
-        {articles.map((a) => (
-          <li key={a.id}>
-            <Link href={`/news/${category.slug}/${a.slug}`} className="text-lg text-[#ff2bd6] hover:underline">
-              {a.title}
-            </Link>
-            {a.summary ? (
-              <p className="mt-1 text-sm text-[#777]">
-                {a.summary.length > 160 ? `${a.summary.slice(0, 160)}…` : a.summary}
-              </p>
-            ) : null}
-          </li>
-        ))}
-      </ul>
-      {articles.length === 0 ? <p className="mt-8 text-sm text-[#666]">No articles in this channel yet.</p> : null}
+    <main className="flex-1 py-10 sm:py-14">
+      <SiteContainer max="md">
+        <header className="panel px-5 py-6 sm:px-8 sm:py-8">
+          <p className="font-mono text-[10px] font-medium uppercase tracking-[0.35em] text-[#ff2bd6] sm:text-xs">Category</p>
+          <h1 className="mt-2 font-mono text-2xl font-bold tracking-tight text-[#00ff41] sm:text-3xl lg:text-4xl">{category.name}</h1>
+          {category.description ? (
+            <p className="mt-3 max-w-2xl text-sm leading-relaxed text-[#9a9a9a] sm:text-base">{category.description}</p>
+          ) : null}
+        </header>
+
+        <ul className="mt-8 space-y-3 sm:mt-10 sm:space-y-4">
+          {articles.map((a) => (
+            <li key={a.id}>
+              <Link
+                href={`/news/${category.slug}/${a.slug}`}
+                className="panel panel-glow block px-4 py-4 sm:px-5 sm:py-5"
+              >
+                <span className="font-mono text-base font-semibold leading-snug text-[#ff2bd6] sm:text-lg">{a.title}</span>
+                {a.summary ? (
+                  <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-[#777] sm:line-clamp-3">
+                    {a.summary.length > 220 ? `${a.summary.slice(0, 220)}…` : a.summary}
+                  </p>
+                ) : null}
+              </Link>
+            </li>
+          ))}
+        </ul>
+        {articles.length === 0 ? (
+          <p className="mt-8 rounded-md border border-dashed border-[#00ff41]/25 bg-black/30 py-10 text-center text-sm text-[#666] sm:mt-10">
+            No articles in this channel yet.
+          </p>
+        ) : null}
+      </SiteContainer>
     </main>
   );
 }

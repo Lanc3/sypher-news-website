@@ -7,6 +7,7 @@ import { ArticleJsonLd } from "@/components/article-json-ld";
 import { PageViewTracker } from "@/components/page-view-tracker";
 import { InArticleAdSlot, SidebarAdSlot } from "@/components/ad-provider";
 import { siteUrl } from "@/lib/site-url";
+import { SiteContainer } from "@/components/site-container";
 
 export const revalidate = 60;
 
@@ -72,74 +73,94 @@ export default async function ArticlePage({ params }: Props) {
         section={article.topic.category.name}
       />
       <PageViewTracker path={path} articleId={article.id} />
-      <main className="mx-auto flex w-full max-w-6xl flex-1 gap-6 px-4 py-10">
-        <article className="min-w-0 flex-1">
-          <p className="font-mono text-xs uppercase tracking-[0.25em] text-[#ff2bd6]">
-            /news/{article.topic.category.slug}
-          </p>
-          <h1 className="mt-2 font-mono text-3xl font-bold tracking-tight text-[#00ff41] drop-shadow-[0_0_12px_rgba(0,255,65,0.2)] md:text-4xl">
-            {article.title}
-          </h1>
-          <div className="mt-3 flex flex-wrap gap-3 text-xs font-mono text-[#888]">
-            <time dateTime={article.createdAt.toISOString()}>{article.createdAt.toISOString().slice(0, 10)}</time>
-            {transparency != null ? (
-              <span className="rounded border border-[#00ff41]/40 px-2 py-0.5 text-[#00ff41]">
-                Transparency index ~{transparency}
-              </span>
-            ) : null}
-            {article.articleAlignmentLabel ? (
-              <span className="text-[#ff2bd6]/80">alignment: {article.articleAlignmentLabel}</span>
-            ) : null}
-          </div>
+      <main className="flex-1 py-8 sm:py-10 lg:py-12">
+        <SiteContainer max="lg" className="flex flex-col gap-8 lg:flex-row lg:items-start lg:gap-10">
+          <article className="min-w-0 flex-1">
+            <div className="panel px-4 py-6 sm:px-6 sm:py-8 lg:px-8 lg:py-10">
+              <p className="font-mono text-[10px] font-medium uppercase tracking-[0.28em] text-[#ff2bd6] sm:text-xs">
+                /news/{article.topic.category.slug}
+              </p>
+              <h1 className="mt-3 font-mono text-[1.65rem] font-bold leading-tight tracking-tight text-[#00ff41] drop-shadow-[0_0_14px_rgba(0,255,65,0.18)] sm:text-3xl md:text-4xl">
+                {article.title}
+              </h1>
+              <div className="mt-4 flex flex-wrap gap-2 text-[11px] font-mono text-[#888] sm:gap-3 sm:text-xs">
+                <time dateTime={article.createdAt.toISOString()}>{article.createdAt.toISOString().slice(0, 10)}</time>
+                {transparency != null ? (
+                  <span className="rounded border border-[#00ff41]/40 px-2 py-0.5 text-[#00ff41]">
+                    Transparency index ~{transparency}
+                  </span>
+                ) : null}
+                {article.articleAlignmentLabel ? (
+                  <span className="text-[#ff2bd6]/80">alignment: {article.articleAlignmentLabel}</span>
+                ) : null}
+              </div>
 
-          <div className="mt-10 space-y-10">
-            <section>
-              <h2 className="mb-3 font-mono text-sm uppercase tracking-widest text-[#e0e0e0]/70">Transmission</h2>
-              <MarkdownBody content={article.bodyMarkdown} />
-            </section>
+              <div className="mt-8 space-y-10 sm:mt-10">
+                <section>
+                  <h2 className="mb-3 font-mono text-xs font-medium uppercase tracking-widest text-[#e0e0e0]/70 sm:text-sm">
+                    Transmission
+                  </h2>
+                  <MarkdownBody content={article.bodyMarkdown} />
+                </section>
 
-            <InArticleAdSlot />
+                <InArticleAdSlot />
 
-            {(article.researchMarkdown || article.articleAlignmentRationale) && (
-              <section className="rounded-lg border border-[#00ff41]/30 bg-black/70 p-4 shadow-[inset_0_0_0_1px_rgba(0,255,65,0.08)]">
-                <h2 className="font-mono text-sm uppercase tracking-widest text-[#00ff41]">:: DISASSEMBLY</h2>
-                <div className="mt-3 font-mono text-sm text-[#c8ffc8]">
-                  {article.researchMarkdown ? <MarkdownBody content={article.researchMarkdown} /> : null}
-                  {article.articleAlignmentRationale ? (
-                    <div className="mt-4 border-t border-[#00ff41]/20 pt-4 text-[#a0a0a0]">
-                      <p className="text-xs uppercase text-[#ff2bd6]">Alignment rationale</p>
-                      <MarkdownBody content={article.articleAlignmentRationale} />
-                    </div>
-                  ) : null}
-                </div>
-              </section>
-            )}
-
-            {article.sources.length > 0 ? (
-              <section>
-                <h2 className="mb-3 font-mono text-sm uppercase tracking-widest text-[#e0e0e0]/70">Source matrix</h2>
-                <ul className="space-y-3 text-sm">
-                  {article.sources.map((s) => (
-                    <li key={s.id} className="rounded border border-[#00ff41]/15 bg-black/40 p-3">
-                      <a href={s.url} target="_blank" rel="noopener noreferrer" className="text-[#ff2bd6] hover:underline">
-                        {s.title || s.url}
-                      </a>
-                      {s.snippet ? <p className="mt-1 text-xs text-[#9a9a9a]">{s.snippet}</p> : null}
-                      {s.alignmentLabel ? (
-                        <p className="mt-1 text-xs font-mono text-[#00ff41]/70">label: {s.alignmentLabel}</p>
+                {(article.researchMarkdown || article.articleAlignmentRationale) && (
+                  <section className="panel border-[#00ff41]/35 bg-black/70 p-4 sm:p-5">
+                    <h2 className="font-mono text-xs font-medium uppercase tracking-widest text-[#00ff41] sm:text-sm">
+                      :: DISASSEMBLY
+                    </h2>
+                    <div className="mt-3 font-mono text-sm text-[#c8ffc8]">
+                      {article.researchMarkdown ? <MarkdownBody content={article.researchMarkdown} /> : null}
+                      {article.articleAlignmentRationale ? (
+                        <div className="mt-4 border-t border-[#00ff41]/20 pt-4 text-[#a0a0a0]">
+                          <p className="text-[10px] font-medium uppercase tracking-widest text-[#ff2bd6] sm:text-xs">
+                            Alignment rationale
+                          </p>
+                          <MarkdownBody content={article.articleAlignmentRationale} />
+                        </div>
                       ) : null}
-                    </li>
-                  ))}
-                </ul>
-              </section>
-            ) : null}
+                    </div>
+                  </section>
+                )}
 
-            <Link href="/" className="inline-block font-mono text-sm text-[#00ff41] hover:underline">
-              ← /home
-            </Link>
-          </div>
-        </article>
-        <SidebarAdSlot />
+                {article.sources.length > 0 ? (
+                  <section>
+                    <h2 className="mb-3 font-mono text-xs font-medium uppercase tracking-widest text-[#e0e0e0]/70 sm:text-sm">
+                      Source matrix
+                    </h2>
+                    <ul className="space-y-3 text-sm">
+                      {article.sources.map((s) => (
+                        <li key={s.id} className="panel border-[#00ff41]/12 p-3 sm:p-4">
+                          <a
+                            href={s.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="break-words text-[#ff2bd6] underline decoration-[#ff2bd6]/50 underline-offset-2 hover:decoration-[#ff2bd6]"
+                          >
+                            {s.title || s.url}
+                          </a>
+                          {s.snippet ? <p className="mt-2 text-xs leading-relaxed text-[#9a9a9a] sm:text-sm">{s.snippet}</p> : null}
+                          {s.alignmentLabel ? (
+                            <p className="mt-2 text-[11px] font-mono text-[#00ff41]/70 sm:text-xs">label: {s.alignmentLabel}</p>
+                          ) : null}
+                        </li>
+                      ))}
+                    </ul>
+                  </section>
+                ) : null}
+
+                <Link
+                  href="/"
+                  className="inline-flex min-h-11 items-center font-mono text-sm text-[#00ff41] underline decoration-[#00ff41]/40 underline-offset-4 hover:decoration-[#00ff41]"
+                >
+                  ← /home
+                </Link>
+              </div>
+            </div>
+          </article>
+          <SidebarAdSlot />
+        </SiteContainer>
       </main>
     </>
   );

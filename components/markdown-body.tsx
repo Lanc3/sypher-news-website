@@ -16,7 +16,21 @@ export function MarkdownBody({ content, className }: { content: string; classNam
   return (
     <div
       className={cn(
-        "article-md max-w-none space-y-4 text-[#e0e0e0] [&_a]:text-[#ff2bd6] [&_code]:rounded [&_code]:bg-black/50 [&_code]:px-1 [&_code]:text-[#00ff41] [&_h1]:text-2xl [&_h2]:text-xl [&_h3]:text-lg [&_li]:ml-4 [&_ol]:list-decimal [&_p]:leading-relaxed [&_pre]:overflow-x-auto [&_pre]:rounded-md [&_pre]:border [&_pre]:border-[#00ff41]/25 [&_pre]:bg-black/60 [&_pre]:p-3 [&_ul]:list-disc",
+        "article-md max-w-none space-y-4 break-words text-[#e0e0e0] text-[0.9375rem] leading-relaxed sm:text-base",
+        "[&_a]:break-words [&_a]:text-[#ff2bd6] [&_blockquote]:border-l-2 [&_blockquote]:border-[#00ff41]/35 [&_blockquote]:pl-4 [&_blockquote]:text-[#b8b8b8]",
+        "[&_code]:rounded [&_code]:break-all [&_code]:bg-black/50 [&_code]:px-1 [&_code]:text-[0.85em] [&_code]:text-[#00ff41]",
+        "[&_h1]:scroll-mt-24 [&_h1]:text-xl [&_h1]:font-bold [&_h1]:text-[#e8e8e8] sm:[&_h1]:text-2xl",
+        "[&_h2]:scroll-mt-24 [&_h2]:text-lg [&_h2]:font-semibold [&_h2]:text-[#e8e8e8] sm:[&_h2]:text-xl",
+        "[&_h3]:scroll-mt-24 [&_h3]:text-base [&_h3]:font-semibold [&_h3]:text-[#e0e0e0] sm:[&_h3]:text-lg",
+        "[&_img]:max-h-[70vh] [&_img]:max-w-full [&_img]:rounded-md [&_img]:border [&_img]:border-[#00ff41]/20",
+        "[&_li]:ml-4 [&_li]:marker:text-[#00ff41]/50",
+        "[&_ol]:list-decimal [&_ol]:space-y-1",
+        "[&_p]:leading-relaxed",
+        "[&_pre]:overflow-x-auto [&_pre]:rounded-md [&_pre]:border [&_pre]:border-[#00ff41]/25 [&_pre]:bg-black/60 [&_pre]:p-3 [&_pre]:text-[0.8125rem] sm:[&_pre]:text-sm",
+        "[&_table]:block [&_table]:max-w-full [&_table]:overflow-x-auto",
+        "[&_th]:border [&_th]:border-[#00ff41]/25 [&_th]:bg-black/50 [&_th]:px-2 [&_th]:py-1.5 [&_th]:text-left [&_th]:text-xs",
+        "[&_td]:border [&_td]:border-[#00ff41]/15 [&_td]:px-2 [&_td]:py-1.5 [&_td]:text-xs sm:[&_td]:text-sm",
+        "[&_ul]:list-disc [&_ul]:space-y-1",
         className,
       )}
     >

@@ -42,26 +42,41 @@ export function NewsletterPopup() {
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-[70] flex items-end justify-center bg-black/60 p-4 sm:items-center">
-      <div className="relative w-full max-w-md border border-[#00ff41]/40 bg-[#080808] p-6 shadow-[0_0_30px_rgba(0,255,65,0.15)]">
+    <div
+      className="fixed inset-0 z-[70] flex items-end justify-center bg-black/65 p-4 pb-[max(1rem,env(safe-area-inset-bottom))] sm:items-center sm:pb-4"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="newsletter-popup-title"
+    >
+      <div className="panel panel-glow relative w-full max-w-md border-[#00ff41]/40 p-5 shadow-[0_0_30px_rgba(0,255,65,0.12)] sm:p-6">
         <button
           type="button"
           aria-label="Close"
           onClick={dismiss}
-          className="absolute right-3 top-3 text-[#888] hover:text-[#00ff41]"
+          className="absolute right-3 top-3 flex min-h-11 min-w-11 items-center justify-center rounded-md text-[#888] transition hover:bg-[#00ff41]/10 hover:text-[#00ff41]"
         >
           <X className="h-5 w-5" />
         </button>
-        <p className="font-mono text-xs uppercase tracking-[0.2em] text-[#ff2bd6]">Signal boost</p>
-        <h2 className="mt-2 font-mono text-lg text-[#00ff41]">Join the Sypher dispatch</h2>
-        <p className="mt-2 text-sm text-[#b0b0b0]">Weekly deconstructions, no fluff. Unsubscribe anytime.</p>
-        <form onSubmit={onSubmit} className="mt-4 flex flex-col gap-2 sm:flex-row">
-          <Input type="email" required placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} className="sm:flex-1" />
-          <Button type="submit" disabled={pending}>
+        <p className="font-mono text-[10px] font-medium uppercase tracking-[0.28em] text-[#ff2bd6] sm:text-xs">Signal boost</p>
+        <h2 id="newsletter-popup-title" className="mt-2 pr-10 font-mono text-lg text-[#00ff41] sm:text-xl">
+          Join the Sypher dispatch
+        </h2>
+        <p className="mt-2 text-sm leading-relaxed text-[#b0b0b0]">Weekly deconstructions, no fluff. Unsubscribe anytime.</p>
+        <form onSubmit={onSubmit} className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-stretch">
+          <Input
+            type="email"
+            required
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="sm:flex-1"
+            autoComplete="email"
+          />
+          <Button type="submit" disabled={pending} className="shrink-0 sm:w-auto">
             {pending ? "…" : "Join"}
           </Button>
         </form>
-        {msg ? <p className="mt-2 text-xs text-[#888]">{msg}</p> : null}
+        {msg ? <p className="mt-3 text-xs text-[#888]">{msg}</p> : null}
       </div>
     </div>
   );

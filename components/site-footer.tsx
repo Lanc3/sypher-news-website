@@ -1,28 +1,33 @@
 import Link from "next/link";
 import { NewsletterForm } from "@/components/newsletter-form";
+import { SiteContainer } from "@/components/site-container";
 
 export function SiteFooter() {
   return (
-    <footer className="mt-auto border-t border-[#00ff41]/20 bg-black/50 px-4 py-10 text-sm text-[#a0a0a0]">
-      <div className="mx-auto grid max-w-6xl gap-8 md:grid-cols-2">
-        <div>
-          <p className="font-mono text-[#00ff41]">Sypher News</p>
-          <p className="mt-2 max-w-md leading-relaxed">
-            Disassembling mainstream narratives with transparent, data-driven reporting.
-          </p>
+    <footer className="mt-auto border-t border-[#00ff41]/20 bg-black/55 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-10 sm:pt-14">
+      <SiteContainer>
+        <div className="grid gap-10 sm:grid-cols-2 sm:gap-12 lg:grid-cols-[1fr_1.1fr]">
+          <div>
+            <p className="font-mono text-sm font-semibold tracking-wide text-[#00ff41]">Sypher News</p>
+            <p className="mt-3 max-w-md text-sm leading-relaxed text-[#a8a8a8] sm:text-[0.9375rem]">
+              Disassembling mainstream narratives with transparent, data-driven reporting.
+            </p>
+          </div>
+          <div>
+            <p className="font-mono text-xs font-medium uppercase tracking-[0.2em] text-[#00ff41]/75">Newsletter</p>
+            <NewsletterForm />
+            <p className="mt-3 text-xs leading-relaxed text-[#666] sm:mt-4">
+              By subscribing you acknowledge our processing of your email for updates.{" "}
+              <Link href="/unsubscribe" className="text-[#ff2bd6] underline-offset-2 hover:underline">
+                Unsubscribe
+              </Link>
+            </p>
+          </div>
         </div>
-        <div>
-          <p className="font-mono text-xs uppercase tracking-widest text-[#00ff41]/70">Newsletter</p>
-          <NewsletterForm />
-          <p className="mt-2 text-xs text-[#666]">
-            By subscribing you acknowledge our processing of your email for updates.{" "}
-            <Link href="/unsubscribe" className="text-[#ff2bd6] hover:underline">
-              Unsubscribe
-            </Link>
-          </p>
-        </div>
-      </div>
-      <p className="mx-auto mt-8 max-w-6xl text-center text-xs text-[#555]">© {new Date().getFullYear()} Sypher News</p>
+        <p className="mt-10 border-t border-[#1a1a1a] pt-6 text-center text-xs text-[#555] sm:mt-12">
+          © {new Date().getFullYear()} Sypher News
+        </p>
+      </SiteContainer>
     </footer>
   );
 }

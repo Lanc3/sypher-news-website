@@ -19,8 +19,14 @@ export const runtime = "nodejs";
  * or, if unset, `ARTICLES_INGEST_API_KEY` (same secret as POST /api/v1/articles).
  *
  * Upserts by slug (updates existing article + sources).
+ *
+ * Bulk (from Sypher Sync with "One request (bulk)"):
+ *   `{ "format": "sypher_ingest_v1", "items": [ { article, topic?, category? }, ... ] }`
  */
 const MAX_BODY_BYTES = 2 * 1024 * 1024;
+const MAX_BODY_BYTES_BULK = 32 * 1024 * 1024;
+
+const SYPHER_INGEST_BULK_FORMAT = "sypher_ingest_v1";
 
 function jsonError(status: number, code: string, message: string, extra?: Record<string, unknown>) {
   return NextResponse.json({ error: { code, message, ...extra } }, { status });
@@ -57,7 +63,7 @@ export async function POST(req: Request) {
   }
 
   const len = Number(req.headers.get("content-length") || "0");
-  if (len > MAX_BODY_BYTES) {
+  if (len > MAX_BODY_BYTES_BULK) {
     return jsonError(413, "payload_too_large", "Request body too large");
   }
 
@@ -66,6 +72,61 @@ export async function POST(req: Request) {
     body = await req.json();
   } catch {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
+  }
+
+  const isBulk =
+    body !== null &&
+    typeof body === "object" &&
+    (body as { format?: unknown }).format === SYPHER_INGEST_BULK_FORMAT &&
+    Array.isArray((body as { items?: unknown }).items);
+
+  if (isBulk) {
+    const items = (body as { items: unknown[] }).items;
+
+    const slugs: string[] = [];
+    const outcomes: { slug: string; outcome: "created" | "updated" }[] = [];
+
+    try {
+      for (let i = 0; i < items.length; i++) {
+        const parsed = parseSypherBundle(items[i]);
+        if (!parsed.ok) {
+          return NextResponse.json(
+            {
+              error: {
+                code: "bulk_item_invalid",
+                message: parsed.message,
+                index: i,
+                ...(parsed.issues ? { issues: parsed.issues } : {}),
+              },
+            },
+            { status: 400 },
+          );
+        }
+        const outcome = await persistArticleIngest(parsed.data, { upsert: true });
+        slugs.push(parsed.data.slug);
+        outcomes.push({ slug: parsed.data.slug, outcome });
+      }
+      return NextResponse.json(
+        { ok: true, bulk: true, count: slugs.length, slugs, outcomes },
+        { status: 201 },
+      );
+    } catch (e) {
+      if (e instanceof ReservedSlugError) {
+        return jsonError(422, "reserved_slug", "Slug is reserved");
+      }
+      if (e instanceof SlugConflictError) {
+        return jsonError(409, "slug_conflict", "An article with this slug already exists");
+      }
+      if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2002") {
+        return jsonError(409, "slug_conflict", "An article with this slug already exists");
+      }
+      console.error("[sypher/articles bulk]", e);
+      return jsonError(500, "server_error", "Failed to persist bulk articles");
+    }
+  }
+
+  if (len > MAX_BODY_BYTES) {
+    return jsonError(413, "payload_too_large", "Request body too large");
   }
 
   const parsed = parseSypherBundle(body);
@@ -79,7 +140,7 @@ export async function POST(req: Request) {
   try {
     const outcome = await persistArticleIngest(parsed.data, { upsert: true });
     return NextResponse.json(
-      { ok: true, slug: parsed.data.slug, outcome },
+      { ok: true, bulk: false, slug: parsed.data.slug, outcome },
       { status: outcome === "created" ? 201 : 200 },
     );
   } catch (e) {

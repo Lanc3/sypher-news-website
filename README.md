@@ -6,12 +6,25 @@ Next.js news frontend with Prisma (PostgreSQL), NextAuth admin, ingest API, and 
 
 Copy [`.env.example`](./.env.example) and fill values. For **Vercel**, add the same keys in **Project → Settings → Environment Variables** (Production + Preview).
 
+### Vercel: auth (do not skip)
+
+Admin login **will not work** unless NextAuth can sign cookies. Set at least one secret and one public URL:
+
+1. **`AUTH_SECRET`** (recommended) — or set **`NEXTAUTH_SECRET`** instead; the app copies it to `AUTH_SECRET` at boot. Generate locally:
+   ```bash
+   node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+   ```
+2. **`AUTH_URL`** (recommended) — e.g. `https://your-project.vercel.app`, or your custom domain with `https://`.  
+   You may set **`NEXTAUTH_URL`** instead (same value).  
+   If both are missing on Vercel, the app falls back to **`https://` + `VERCEL_URL`** (Vercel sets `VERCEL_URL` per deployment).
+
 | Variable | Required | Notes |
 |----------|----------|--------|
 | `DATABASE_URL` | Yes | Postgres connection string (use **pooled** URL on serverless, e.g. Neon `?sslmode=require`). |
-| `AUTH_SECRET` | Yes | Long random string. NextAuth v5 uses this (alias `NEXTAUTH_SECRET` also works). |
-| `AUTH_URL` | Yes on Vercel | Canonical site URL, e.g. `https://your-project.vercel.app` (avoids auth callback issues). |
+| `AUTH_SECRET` | Yes* | Long random string. *Or use `NEXTAUTH_SECRET` — mapped automatically. |
+| `AUTH_URL` | Yes* | Canonical `https://…` site URL. *Or `NEXTAUTH_URL`, or rely on `VERCEL_URL` fallback on Vercel only. |
 | `NEXTAUTH_URL` | Optional | Same as `AUTH_URL` if you prefer the legacy name. |
+| `NEXTAUTH_SECRET` | Optional | Copied to `AUTH_SECRET` when `AUTH_SECRET` is unset. |
 | `ARTICLES_INGEST_API_KEY` | For ingest | Required for `POST /api/v1/articles` to accept traffic. |
 | `NEXT_PUBLIC_SITE_URL` | Recommended | Same public URL as `AUTH_URL` for metadata and JSON-LD. |
 | `ADMIN_SEED_PASSWORD` | Seed only | Used when running `npm run db:seed` locally; not needed on Vercel runtime. |
@@ -34,10 +47,14 @@ Default admin after seed: **`admin@sypher.news`** / password **`changeme`** (or 
 **Vercel:** the **build** runs `prisma migrate deploy` automatically. Run **seed once** from your computer pointed at production:
 
 ```bash
-set DATABASE_URL=postgresql://...   # Windows PowerShell: $env:DATABASE_URL="..."
-set ADMIN_SEED_PASSWORD=your-secure-password
-npm run db:seed
+# Pull env (includes DATABASE_URL) — requires `npx vercel link` once
+npx vercel env pull .env.local --environment=production --yes
+
+# Seed using that file (also loads .env if present)
+npm run db:seed:vercel
 ```
+
+Or set `DATABASE_URL` manually, then `npm run db:seed`. Optional: `ADMIN_SEED_PASSWORD` before seeding to choose the admin password (default **`changeme`**).
 
 Then sign in at `https://<your-domain>/admin/login` and change behavior via the admin UI.
 

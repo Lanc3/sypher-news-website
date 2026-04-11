@@ -34,7 +34,8 @@ export const articleSourceIngestSchema = z.object({
     .optional()
     .nullable(),
   alignment_rationale: z.string().optional().nullable(),
-  alignment_assessed_at: z.string().datetime().optional().nullable(),
+  // Sypher sends ISO from Python (often without "Z"); accept any parseable instant.
+  alignment_assessed_at: z.string().min(4).max(64).optional().nullable(),
   alignment_model_version: z.string().max(64).optional().nullable(),
 });
 

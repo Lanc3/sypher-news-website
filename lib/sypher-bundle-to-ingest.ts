@@ -9,6 +9,31 @@ function str(v: unknown): string | null {
   return t.length ? t : null;
 }
 
+/** Zod ingest expects alignment scores in [0, 1]; Sypher / LLM may send edge values or strings. */
+function unitIntervalOrUndefined(v: unknown): number | undefined {
+  let n: number | undefined;
+  if (typeof v === "number" && Number.isFinite(v)) n = v;
+  else if (typeof v === "string" && v.trim()) {
+    const p = Number(v.trim());
+    if (Number.isFinite(p)) n = p;
+  }
+  if (n === undefined) return undefined;
+  if (n < 0) return 0;
+  if (n > 1) return 1;
+  return n;
+}
+
+/** Normalize to ISO string Zod accepts; drop invalid / naive timestamps from Sypher. */
+function alignmentAssessedAtOrUndefined(v: unknown): string | undefined {
+  if (v === null || v === undefined) return undefined;
+  if (typeof v !== "string") return undefined;
+  const t = v.trim();
+  if (!t) return undefined;
+  const ms = Date.parse(t);
+  if (Number.isNaN(ms)) return undefined;
+  return new Date(ms).toISOString();
+}
+
 /**
  * Maps Sypher-News `build_export_bundle` JSON into the flat shape expected by {@link articleIngestBodySchema}.
  */
@@ -48,13 +73,12 @@ export function sypherBundleToIngestCandidate(bundle: unknown): unknown | null {
         s.alignment_axis === null || s.alignment_axis === undefined ? undefined : str(s.alignment_axis as string),
       alignment_label:
         s.alignment_label === null || s.alignment_label === undefined ? null : str(s.alignment_label as string),
-      alignment_confidence: typeof s.alignment_confidence === "number" ? s.alignment_confidence : undefined,
+      alignment_confidence: unitIntervalOrUndefined(s.alignment_confidence),
       alignment_rationale:
         s.alignment_rationale === null || s.alignment_rationale === undefined
           ? null
           : (s.alignment_rationale as string | null),
-      alignment_assessed_at:
-        typeof s.alignment_assessed_at === "string" ? s.alignment_assessed_at : undefined,
+      alignment_assessed_at: alignmentAssessedAtOrUndefined(s.alignment_assessed_at),
       alignment_model_version:
         s.alignment_model_version === null || s.alignment_model_version === undefined
           ? undefined
@@ -82,8 +106,7 @@ export function sypherBundleToIngestCandidate(bundle: unknown): unknown | null {
       a.article_alignment_label === null || a.article_alignment_label === undefined
         ? null
         : str(a.article_alignment_label as string),
-    article_alignment_confidence:
-      typeof a.article_alignment_confidence === "number" ? a.article_alignment_confidence : undefined,
+    article_alignment_confidence: unitIntervalOrUndefined(a.article_alignment_confidence),
     article_alignment_rationale:
       a.article_alignment_rationale === null || a.article_alignment_rationale === undefined
         ? null

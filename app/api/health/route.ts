@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { isAuthorizedIngestKey, listIngestSecrets } from "@/lib/ingest-secrets";
 import { getApiKeyFromRequest } from "@/lib/request-api-key";
 
 export const runtime = "nodejs";
@@ -12,8 +13,8 @@ type HealthBase = {
 
 /**
  * Liveness for probes: always returns 200 when the app is running.
- * Handshake: send `Authorization: Bearer <ARTICLES_INGEST_API_KEY>` (or `X-Api-Key`)
- * to verify the shared secret and database connectivity.
+ * Handshake: send `Authorization: Bearer <token>` (or `X-Api-Key`) using the same secret as
+ * `SYPHER_INGEST_TOKEN` or `ARTICLES_INGEST_API_KEY` (whichever is configured for ingest).
  */
 export async function GET(req: Request) {
   const base: HealthBase = {
@@ -27,24 +28,25 @@ export async function GET(req: Request) {
     return NextResponse.json({
       ...base,
       handshake: "anonymous",
-      hint: "Send Authorization: Bearer <ARTICLES_INGEST_API_KEY> for verified handshake",
+      hint: "Send Authorization: Bearer <SYPHER_INGEST_TOKEN or ARTICLES_INGEST_API_KEY> for verified handshake",
     });
   }
 
-  const expected = process.env.ARTICLES_INGEST_API_KEY;
-  if (!expected) {
+  const secrets = listIngestSecrets();
+  if (secrets.length === 0) {
     return NextResponse.json(
       {
         error: {
           code: "auth_not_configured",
-          message: "A bearer token was sent but ARTICLES_INGEST_API_KEY is not set on this deployment",
+          message:
+            "A bearer token was sent but neither SYPHER_INGEST_TOKEN nor ARTICLES_INGEST_API_KEY is set on this deployment",
         },
       },
       { status: 503 },
     );
   }
 
-  if (presented !== expected) {
+  if (!isAuthorizedIngestKey(presented)) {
     return NextResponse.json(
       { error: { code: "unauthorized", message: "Invalid or missing API key" } },
       { status: 401 },

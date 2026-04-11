@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { isAuthorizedIngestKey, listIngestSecrets } from "@/lib/ingest-secrets";
 import { rateLimitIngest } from "@/lib/rate-limit";
 import { getApiKeyFromRequest } from "@/lib/request-api-key";
 import { parseSypherBundle } from "@/lib/sypher-bundle-to-ingest";
@@ -15,8 +16,8 @@ export const runtime = "nodejs";
  * POST /api/sypher/articles
  *
  * Accepts Sypher-News remote sync bundle: `{ article, topic?, category? }`.
- * Auth: `Authorization: Bearer <token>` (or `X-Api-Key`) using `SYPHER_INGEST_TOKEN`
- * or, if unset, `ARTICLES_INGEST_API_KEY` (same secret as POST /api/v1/articles).
+ * Auth: `Authorization: Bearer <token>` (or `X-Api-Key`) matching any configured
+ * `SYPHER_INGEST_TOKEN` or `ARTICLES_INGEST_API_KEY` (same rules as verified GET /api/health).
  *
  * Upserts by slug (updates existing article + sources).
  *
@@ -32,24 +33,18 @@ function jsonError(status: number, code: string, message: string, extra?: Record
   return NextResponse.json({ error: { code, message, ...extra } }, { status });
 }
 
-function ingestSecret(): string | undefined {
-  const a = process.env.SYPHER_INGEST_TOKEN?.trim();
-  const b = process.env.ARTICLES_INGEST_API_KEY?.trim();
-  return a || b;
-}
-
 export async function GET() {
   return new NextResponse(null, { status: 405, headers: { Allow: "POST" } });
 }
 
 export async function POST(req: Request) {
-  const expected = ingestSecret();
-  if (!expected) {
+  const secrets = listIngestSecrets();
+  if (secrets.length === 0) {
     return jsonError(503, "ingest_disabled", "Set SYPHER_INGEST_TOKEN or ARTICLES_INGEST_API_KEY");
   }
 
   const key = getApiKeyFromRequest(req);
-  if (!key || key !== expected) {
+  if (!isAuthorizedIngestKey(key)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

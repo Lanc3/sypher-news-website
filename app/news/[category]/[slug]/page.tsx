@@ -9,6 +9,8 @@ import { InArticleAdSlot, SidebarAdSlot } from "@/components/ad-provider";
 import { siteUrl } from "@/lib/site-url";
 import { SiteContainer } from "@/components/site-container";
 
+/** Avoid caching notFound/redirect decisions while articles are ingested after deploy. */
+export const dynamic = "force-dynamic";
 export const revalidate = 60;
 
 export async function generateStaticParams() {

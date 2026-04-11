@@ -38,6 +38,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     }),
   ],
   callbacks: {
+    authorized({ auth, request }) {
+      const path = request.nextUrl.pathname;
+      if (!path.startsWith("/admin")) return true;
+      if (path === "/admin/login") return true;
+      return !!auth?.user;
+    },
     jwt: async ({ token, user }) => {
       if (user) {
         token.id = user.id;

@@ -42,11 +42,11 @@ export function AdsForm({ placements }: { placements: AdPlacement[] }) {
     <div className="space-y-8 font-mono">
       {msg ? <p className="text-sm text-[#888]">{msg}</p> : null}
       {placements.map((p) => (
-        <div key={p.id} className="space-y-3 rounded border border-[#00ff41]/20 bg-black/40 p-4">
-          <h2 className="text-lg text-[#ff2bd6]">{p.slot}</h2>
+        <div key={p.id} className="space-y-3 rounded border border-[#00e8ff]/20 bg-black/40 p-4">
+          <h2 className="text-lg text-[#bc13fe]">{p.slot}</h2>
           <form className="space-y-3" onSubmit={(e) => save(p, e)}>
             <label className="flex items-center gap-2 text-sm text-[#aaa]">
-              <input type="checkbox" name="enabled" defaultChecked={p.enabled} className="accent-[#00ff41]" />
+              <input type="checkbox" name="enabled" defaultChecked={p.enabled} className="accent-[#00e8ff]" />
               Enabled
             </label>
             <div className="space-y-1">

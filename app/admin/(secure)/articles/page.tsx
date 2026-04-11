@@ -15,7 +15,7 @@ export default async function AdminArticlesPage() {
   return (
     <div className="space-y-6 font-mono">
       <div className="flex items-center justify-between gap-4">
-        <h1 className="text-2xl text-[#00ff41]">Articles</h1>
+        <h1 className="text-2xl text-[#00e8ff]">Articles</h1>
         <Link href="/admin/articles/new">
           <Button type="button" className="text-xs">
             New article
@@ -26,10 +26,10 @@ export default async function AdminArticlesPage() {
         {articles.map((a) => (
           <li
             key={a.id}
-            className="flex flex-col gap-2 rounded border border-[#00ff41]/15 bg-black/40 p-3 sm:flex-row sm:items-center sm:justify-between"
+            className="flex flex-col gap-2 rounded border border-[#00e8ff]/15 bg-black/40 p-3 sm:flex-row sm:items-center sm:justify-between"
           >
             <div>
-              <Link href={`/admin/articles/${a.id}`} className="text-[#ff2bd6] hover:underline">
+              <Link href={`/admin/articles/${a.id}`} className="text-[#bc13fe] hover:underline">
                 {a.title}
               </Link>
               <p className="text-xs text-[#666]">

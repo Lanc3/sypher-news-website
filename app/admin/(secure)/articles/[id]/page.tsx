@@ -20,11 +20,11 @@ export default async function EditArticlePage({ params }: Props) {
 
   return (
     <div className="space-y-6 font-mono">
-      <Link href="/admin/articles" className="text-sm text-[#888] hover:text-[#00ff41]">
+      <Link href="/admin/articles" className="text-sm text-[#888] hover:text-[#00e8ff]">
         ← Articles
       </Link>
       <div>
-        <h1 className="text-2xl text-[#00ff41]">Edit article</h1>
+        <h1 className="text-2xl text-[#00e8ff]">Edit article</h1>
         <p className="mt-1 text-xs text-[#666]">
           /news/{article.topic.category.slug}/{article.slug}
         </p>

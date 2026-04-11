@@ -36,8 +36,8 @@ export default async function CategoryArticlesPage({ params }: Props) {
     <main className="flex-1 py-10 sm:py-14">
       <SiteContainer max="md">
         <header className="panel px-5 py-6 sm:px-8 sm:py-8">
-          <p className="font-mono text-[10px] font-medium uppercase tracking-[0.35em] text-[#ff2bd6] sm:text-xs">Category</p>
-          <h1 className="mt-2 font-mono text-2xl font-bold tracking-tight text-[#00ff41] sm:text-3xl lg:text-4xl">{category.name}</h1>
+          <p className="font-mono text-[10px] font-medium uppercase tracking-[0.35em] text-[#bc13fe] sm:text-xs">Category</p>
+          <h1 className="mt-2 font-mono text-2xl font-bold tracking-tight text-[#00e8ff] sm:text-3xl lg:text-4xl">{category.name}</h1>
           {category.description ? (
             <p className="mt-3 max-w-2xl text-sm leading-relaxed text-[#9a9a9a] sm:text-base">{category.description}</p>
           ) : null}
@@ -50,7 +50,7 @@ export default async function CategoryArticlesPage({ params }: Props) {
                 href={`/news/${category.slug}/${a.slug}`}
                 className="panel panel-glow block px-4 py-4 sm:px-5 sm:py-5"
               >
-                <span className="font-mono text-base font-semibold leading-snug text-[#ff2bd6] sm:text-lg">{a.title}</span>
+                <span className="font-mono text-base font-semibold leading-snug text-[#bc13fe] sm:text-lg">{a.title}</span>
                 {a.summary ? (
                   <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-[#777] sm:line-clamp-3">
                     {a.summary.length > 220 ? `${a.summary.slice(0, 220)}…` : a.summary}
@@ -61,7 +61,7 @@ export default async function CategoryArticlesPage({ params }: Props) {
           ))}
         </ul>
         {articles.length === 0 ? (
-          <p className="mt-8 rounded-md border border-dashed border-[#00ff41]/25 bg-black/30 py-10 text-center text-sm text-[#666] sm:mt-10">
+          <p className="mt-8 rounded-md border border-dashed border-[#00e8ff]/25 bg-black/30 py-10 text-center text-sm text-[#666] sm:mt-10">
             No articles in this channel yet.
           </p>
         ) : null}

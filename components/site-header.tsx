@@ -27,19 +27,19 @@ export function SiteHeader() {
   }, [open]);
 
   return (
-    <header className="sticky top-0 z-50 border-b border-[#00ff41]/25 bg-[#050505]/92 backdrop-blur-md supports-[backdrop-filter]:bg-[#050505]/78">
+    <header className="sticky top-0 z-50 border-b border-[#00e8ff]/25 bg-[#070a12]/92 backdrop-blur-md supports-[backdrop-filter]:bg-[#070a12]/78">
       <HeaderAdSlot />
       <SiteContainer className="flex items-center justify-between gap-3 py-3 sm:gap-4">
         <Link
           href="/"
           onClick={() => setOpen(false)}
-          className="group flex min-h-11 min-w-0 shrink items-center gap-2 font-mono text-base font-semibold tracking-tight text-[#00ff41] sm:text-lg"
+          className="group flex min-h-11 min-w-0 shrink items-center gap-2 font-mono text-base font-semibold tracking-tight text-[#00e8ff] sm:text-lg"
         >
           <Terminal
-            className="size-5 shrink-0 motion-reduce:transition-none transition group-hover:drop-shadow-[0_0_8px_#00ff41]"
+            className="size-5 shrink-0 motion-reduce:transition-none transition group-hover:drop-shadow-[0_0_8px_#00e8ff]"
             aria-hidden
           />
-          <span className="truncate group-hover:drop-shadow-[0_0_10px_rgba(0,255,65,0.45)]">SYPHER_NEWS</span>
+          <span className="truncate group-hover:drop-shadow-[0_0_10px_rgba(0,232,255,0.45)]">SYPHER_NEWS</span>
         </Link>
 
         <nav className="hidden items-center gap-0.5 md:flex" aria-label="Main navigation">
@@ -49,8 +49,8 @@ export function SiteHeader() {
               href={item.href}
               className={`rounded-md px-3 py-2.5 text-sm transition-colors ${
                 item.href === "/admin"
-                  ? "text-[#ff2bd6]/90 hover:bg-[#ff2bd6]/10 hover:text-[#ff2bd6]"
-                  : "text-[#c8c8c8] hover:bg-[#00ff41]/10 hover:text-[#00ff41]"
+                  ? "text-[#bc13fe]/90 hover:bg-[#bc13fe]/10 hover:text-[#bc13fe]"
+                  : "text-[#c8c8c8] hover:bg-[#00e8ff]/10 hover:text-[#00e8ff]"
               }`}
             >
               {item.label}
@@ -60,7 +60,7 @@ export function SiteHeader() {
 
         <button
           type="button"
-          className="flex min-h-11 min-w-11 items-center justify-center rounded-md border border-[#00ff41]/35 text-[#00ff41] transition hover:border-[#00ff41]/60 hover:bg-[#00ff41]/5 md:hidden"
+          className="flex min-h-11 min-w-11 items-center justify-center rounded-md border border-[#00e8ff]/35 text-[#00e8ff] transition hover:border-[#00e8ff]/60 hover:bg-[#00e8ff]/5 md:hidden"
           aria-expanded={open}
           aria-controls="mobile-drawer"
           onClick={() => setOpen(true)}
@@ -78,9 +78,9 @@ export function SiteHeader() {
             aria-label="Close menu"
             onClick={() => setOpen(false)}
           />
-          <div className="absolute right-0 top-0 flex h-dvh w-[min(100%,20rem)] flex-col border-l border-[#00ff41]/35 bg-[#080808] shadow-[-12px_0_48px_rgba(0,0,0,0.55)]">
-            <div className="flex items-center justify-between border-b border-[#00ff41]/20 px-4 py-3">
-              <span className="font-mono text-sm font-medium tracking-wide text-[#00ff41]">NAV</span>
+          <div className="absolute right-0 top-0 flex h-dvh w-[min(100%,20rem)] flex-col border-l border-[#00e8ff]/35 bg-[#080808] shadow-[-12px_0_48px_rgba(0,0,0,0.55)]">
+            <div className="flex items-center justify-between border-b border-[#00e8ff]/20 px-4 py-3">
+              <span className="font-mono text-sm font-medium tracking-wide text-[#00e8ff]">NAV</span>
               <button
                 type="button"
                 className="flex min-h-11 min-w-11 items-center justify-center rounded-md text-[#e0e0e0] transition hover:bg-white/5"
@@ -97,8 +97,8 @@ export function SiteHeader() {
                   href={item.href}
                   className={`rounded-lg px-4 py-3.5 text-base transition-colors ${
                     item.href === "/admin"
-                      ? "text-[#ff2bd6] hover:bg-[#ff2bd6]/10"
-                      : "text-[#e8e8e8] hover:bg-[#00ff41]/10 hover:text-[#00ff41]"
+                      ? "text-[#bc13fe] hover:bg-[#bc13fe]/10"
+                      : "text-[#e8e8e8] hover:bg-[#00e8ff]/10 hover:text-[#00e8ff]"
                   }`}
                   onClick={() => setOpen(false)}
                 >

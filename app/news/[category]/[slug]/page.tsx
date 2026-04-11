@@ -77,21 +77,21 @@ export default async function ArticlePage({ params }: Props) {
         <SiteContainer max="lg" className="flex flex-col gap-8 lg:flex-row lg:items-start lg:gap-10">
           <article className="min-w-0 flex-1">
             <div className="panel px-4 py-6 sm:px-6 sm:py-8 lg:px-8 lg:py-10">
-              <p className="font-mono text-[10px] font-medium uppercase tracking-[0.28em] text-[#ff2bd6] sm:text-xs">
+              <p className="text-magenta-glow font-mono text-[10px] font-medium uppercase tracking-[0.28em] text-[#bc13fe] sm:text-xs">
                 /news/{article.topic.category.slug}
               </p>
-              <h1 className="mt-3 font-mono text-[1.65rem] font-bold leading-tight tracking-tight text-[#00ff41] drop-shadow-[0_0_14px_rgba(0,255,65,0.18)] sm:text-3xl md:text-4xl">
+              <h1 className="text-neon-glow mt-3 font-mono text-[1.65rem] font-bold leading-tight tracking-tight text-[#00e8ff] sm:text-3xl md:text-4xl">
                 {article.title}
               </h1>
               <div className="mt-4 flex flex-wrap gap-2 text-[11px] font-mono text-[#888] sm:gap-3 sm:text-xs">
                 <time dateTime={article.createdAt.toISOString()}>{article.createdAt.toISOString().slice(0, 10)}</time>
                 {transparency != null ? (
-                  <span className="rounded border border-[#00ff41]/40 px-2 py-0.5 text-[#00ff41]">
+                  <span className="rounded border border-[#00e8ff]/40 px-2 py-0.5 text-[#00e8ff]">
                     Transparency index ~{transparency}
                   </span>
                 ) : null}
                 {article.articleAlignmentLabel ? (
-                  <span className="text-[#ff2bd6]/80">alignment: {article.articleAlignmentLabel}</span>
+                  <span className="text-[#bc13fe]/80">alignment: {article.articleAlignmentLabel}</span>
                 ) : null}
               </div>
 
@@ -106,15 +106,15 @@ export default async function ArticlePage({ params }: Props) {
                 <InArticleAdSlot />
 
                 {(article.researchMarkdown || article.articleAlignmentRationale) && (
-                  <section className="panel border-[#00ff41]/35 bg-black/70 p-4 sm:p-5">
-                    <h2 className="font-mono text-xs font-medium uppercase tracking-widest text-[#00ff41] sm:text-sm">
+                  <section className="panel border-[#00e8ff]/35 bg-black/70 p-4 sm:p-5">
+                    <h2 className="font-mono text-xs font-medium uppercase tracking-widest text-[#00e8ff] sm:text-sm">
                       :: DISASSEMBLY
                     </h2>
-                    <div className="mt-3 font-mono text-sm text-[#c8ffc8]">
+                    <div className="mt-3 font-mono text-sm text-[#c8eef8]">
                       {article.researchMarkdown ? <MarkdownBody content={article.researchMarkdown} /> : null}
                       {article.articleAlignmentRationale ? (
-                        <div className="mt-4 border-t border-[#00ff41]/20 pt-4 text-[#a0a0a0]">
-                          <p className="text-[10px] font-medium uppercase tracking-widest text-[#ff2bd6] sm:text-xs">
+                        <div className="mt-4 border-t border-[#00e8ff]/20 pt-4 text-[#a0a0a0]">
+                          <p className="text-[10px] font-medium uppercase tracking-widest text-[#bc13fe] sm:text-xs">
                             Alignment rationale
                           </p>
                           <MarkdownBody content={article.articleAlignmentRationale} />
@@ -131,18 +131,18 @@ export default async function ArticlePage({ params }: Props) {
                     </h2>
                     <ul className="space-y-3 text-sm">
                       {article.sources.map((s) => (
-                        <li key={s.id} className="panel border-[#00ff41]/12 p-3 sm:p-4">
+                        <li key={s.id} className="panel border-[#00e8ff]/12 p-3 sm:p-4">
                           <a
                             href={s.url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="break-words text-[#ff2bd6] underline decoration-[#ff2bd6]/50 underline-offset-2 hover:decoration-[#ff2bd6]"
+                            className="break-words text-[#bc13fe] underline decoration-[#bc13fe]/50 underline-offset-2 hover:decoration-[#bc13fe]"
                           >
                             {s.title || s.url}
                           </a>
                           {s.snippet ? <p className="mt-2 text-xs leading-relaxed text-[#9a9a9a] sm:text-sm">{s.snippet}</p> : null}
                           {s.alignmentLabel ? (
-                            <p className="mt-2 text-[11px] font-mono text-[#00ff41]/70 sm:text-xs">label: {s.alignmentLabel}</p>
+                            <p className="mt-2 text-[11px] font-mono text-[#00e8ff]/70 sm:text-xs">label: {s.alignmentLabel}</p>
                           ) : null}
                         </li>
                       ))}
@@ -152,7 +152,7 @@ export default async function ArticlePage({ params }: Props) {
 
                 <Link
                   href="/"
-                  className="inline-flex min-h-11 items-center font-mono text-sm text-[#00ff41] underline decoration-[#00ff41]/40 underline-offset-4 hover:decoration-[#00ff41]"
+                  className="inline-flex min-h-11 items-center font-mono text-sm text-[#00e8ff] underline decoration-[#00e8ff]/40 underline-offset-4 hover:decoration-[#00e8ff]"
                 >
                   ← /home
                 </Link>

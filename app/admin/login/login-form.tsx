@@ -33,8 +33,8 @@ export function AdminLoginForm() {
   }
 
   return (
-    <form onSubmit={onSubmit} className="mx-auto mt-10 max-w-sm space-y-4 rounded-lg border border-[#00ff41]/30 bg-black/60 p-6">
-      <h1 className="font-mono text-xl text-[#00ff41]">Admin login</h1>
+    <form onSubmit={onSubmit} className="mx-auto mt-10 max-w-sm space-y-4 rounded-lg border border-[#00e8ff]/30 bg-black/60 p-6">
+      <h1 className="font-mono text-xl text-[#00e8ff]">Admin login</h1>
       <div className="space-y-2">
         <Label htmlFor="email">Email</Label>
         <Input id="email" type="email" autoComplete="username" value={email} onChange={(e) => setEmail(e.target.value)} required />

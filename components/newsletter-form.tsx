@@ -30,7 +30,7 @@ export function NewsletterForm() {
         onChange={(e) => setEmail(e.target.value)}
         className="sm:flex-1"
       />
-      <Button type="submit" disabled={pending} className="shrink-0 border-[#ff2bd6]/50 text-[#ff2bd6] hover:shadow-[0_0_16px_rgba(255,43,214,0.35)]">
+      <Button type="submit" disabled={pending} className="shrink-0 border-[#bc13fe]/50 text-[#bc13fe] hover:shadow-[0_0_16px_rgba(188,19,254,0.35)]">
         {pending ? "…" : "Subscribe"}
       </Button>
       {msg ? <p className="text-xs text-[#888] sm:col-span-2">{msg}</p> : null}

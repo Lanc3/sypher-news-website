@@ -17,19 +17,19 @@ export default async function AdminAnalyticsPage() {
 
   return (
     <div className="space-y-8 font-mono">
-      <h1 className="text-2xl text-[#00ff41]">Analytics</h1>
+      <h1 className="text-2xl text-[#00e8ff]">Analytics</h1>
       <div className="grid gap-4 sm:grid-cols-3">
-        <div className="rounded border border-[#00ff41]/20 bg-black/40 p-4">
+        <div className="rounded border border-[#00e8ff]/20 bg-black/40 p-4">
           <p className="text-xs uppercase text-[#666]">Page views</p>
-          <p className="mt-2 text-3xl text-[#ff2bd6]">{pageViews}</p>
+          <p className="mt-2 text-3xl text-[#bc13fe]">{pageViews}</p>
         </div>
-        <div className="rounded border border-[#00ff41]/20 bg-black/40 p-4">
+        <div className="rounded border border-[#00e8ff]/20 bg-black/40 p-4">
           <p className="text-xs uppercase text-[#666]">Ad clicks (stub)</p>
-          <p className="mt-2 text-3xl text-[#ff2bd6]">{adClicks}</p>
+          <p className="mt-2 text-3xl text-[#bc13fe]">{adClicks}</p>
         </div>
-        <div className="rounded border border-[#00ff41]/20 bg-black/40 p-4">
+        <div className="rounded border border-[#00e8ff]/20 bg-black/40 p-4">
           <p className="text-xs uppercase text-[#666]">Articles</p>
-          <p className="mt-2 text-3xl text-[#ff2bd6]">{articles}</p>
+          <p className="mt-2 text-3xl text-[#bc13fe]">{articles}</p>
         </div>
       </div>
       <div>

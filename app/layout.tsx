@@ -41,7 +41,7 @@ export default async function RootLayout({
 
   return (
     <html lang="en" className={`${mono.variable} h-full`}>
-      <body className={`${mono.className} relative flex min-h-dvh flex-col bg-[#050505] text-[#e0e0e0] antialiased`}>
+      <body className={`${mono.className} relative flex min-h-dvh flex-col bg-[#070a12] text-[#e0e0e0] antialiased`}>
         <Providers>
           <AdProviderClient placements={placements}>
             <CrtOverlay />

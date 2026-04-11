@@ -91,7 +91,7 @@ export function EditArticleForm({ article }: Props) {
         <Label htmlFor="body">Body markdown</Label>
         <textarea
           id="body"
-          className="min-h-[280px] w-full rounded border border-[#00ff41]/30 bg-[#080808] p-2 text-sm text-[#e0e0e0]"
+          className="min-h-[280px] w-full rounded border border-[#00e8ff]/30 bg-[#080808] p-2 text-sm text-[#e0e0e0]"
           value={bodyMarkdown}
           onChange={(e) => setBodyMarkdown(e.target.value)}
           required
@@ -101,7 +101,7 @@ export function EditArticleForm({ article }: Props) {
         <Label htmlFor="summary">Summary</Label>
         <textarea
           id="summary"
-          className="min-h-[100px] w-full rounded border border-[#00ff41]/30 bg-[#080808] p-2 text-sm text-[#e0e0e0]"
+          className="min-h-[100px] w-full rounded border border-[#00e8ff]/30 bg-[#080808] p-2 text-sm text-[#e0e0e0]"
           value={summary}
           onChange={(e) => setSummary(e.target.value)}
         />
@@ -110,7 +110,7 @@ export function EditArticleForm({ article }: Props) {
         <Label htmlFor="research">Research markdown</Label>
         <textarea
           id="research"
-          className="min-h-[160px] w-full rounded border border-[#00ff41]/30 bg-[#080808] p-2 text-sm text-[#e0e0e0]"
+          className="min-h-[160px] w-full rounded border border-[#00e8ff]/30 bg-[#080808] p-2 text-sm text-[#e0e0e0]"
           value={researchMarkdown}
           onChange={(e) => setResearchMarkdown(e.target.value)}
         />
@@ -119,7 +119,7 @@ export function EditArticleForm({ article }: Props) {
         <Label htmlFor="balance">Source balance summary</Label>
         <textarea
           id="balance"
-          className="min-h-[80px] w-full rounded border border-[#00ff41]/30 bg-[#080808] p-2 text-sm text-[#e0e0e0]"
+          className="min-h-[80px] w-full rounded border border-[#00e8ff]/30 bg-[#080808] p-2 text-sm text-[#e0e0e0]"
           value={sourceBalanceSummary}
           onChange={(e) => setSourceBalanceSummary(e.target.value)}
         />
@@ -138,7 +138,7 @@ export function EditArticleForm({ article }: Props) {
         <Label htmlFor="arat">Alignment rationale</Label>
         <textarea
           id="arat"
-          className="min-h-[100px] w-full rounded border border-[#00ff41]/30 bg-[#080808] p-2 text-sm text-[#e0e0e0]"
+          className="min-h-[100px] w-full rounded border border-[#00e8ff]/30 bg-[#080808] p-2 text-sm text-[#e0e0e0]"
           value={articleAlignmentRationale}
           onChange={(e) => setArticleAlignmentRationale(e.target.value)}
         />
@@ -151,7 +151,7 @@ export function EditArticleForm({ article }: Props) {
         <Label htmlFor="md">SEO meta description</Label>
         <textarea
           id="md"
-          className="min-h-[80px] w-full rounded border border-[#00ff41]/30 bg-[#080808] p-2 text-sm text-[#e0e0e0]"
+          className="min-h-[80px] w-full rounded border border-[#00e8ff]/30 bg-[#080808] p-2 text-sm text-[#e0e0e0]"
           value={seoMetaDescription}
           onChange={(e) => setSeoMetaDescription(e.target.value)}
         />
@@ -168,7 +168,7 @@ export function EditArticleForm({ article }: Props) {
         <Label htmlFor="ogd">OG description</Label>
         <textarea
           id="ogd"
-          className="min-h-[80px] w-full rounded border border-[#00ff41]/30 bg-[#080808] p-2 text-sm text-[#e0e0e0]"
+          className="min-h-[80px] w-full rounded border border-[#00e8ff]/30 bg-[#080808] p-2 text-sm text-[#e0e0e0]"
           value={seoOgDescription}
           onChange={(e) => setSeoOgDescription(e.target.value)}
         />

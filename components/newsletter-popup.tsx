@@ -48,17 +48,17 @@ export function NewsletterPopup() {
       aria-modal="true"
       aria-labelledby="newsletter-popup-title"
     >
-      <div className="panel panel-glow relative w-full max-w-md border-[#00ff41]/40 p-5 shadow-[0_0_30px_rgba(0,255,65,0.12)] sm:p-6">
+      <div className="panel panel-glow relative w-full max-w-md border-[#00e8ff]/40 p-5 shadow-[0_0_30px_rgba(0,232,255,0.12)] sm:p-6">
         <button
           type="button"
           aria-label="Close"
           onClick={dismiss}
-          className="absolute right-3 top-3 flex min-h-11 min-w-11 items-center justify-center rounded-md text-[#888] transition hover:bg-[#00ff41]/10 hover:text-[#00ff41]"
+          className="absolute right-3 top-3 flex min-h-11 min-w-11 items-center justify-center rounded-md text-[#888] transition hover:bg-[#00e8ff]/10 hover:text-[#00e8ff]"
         >
           <X className="h-5 w-5" />
         </button>
-        <p className="font-mono text-[10px] font-medium uppercase tracking-[0.28em] text-[#ff2bd6] sm:text-xs">Signal boost</p>
-        <h2 id="newsletter-popup-title" className="mt-2 pr-10 font-mono text-lg text-[#00ff41] sm:text-xl">
+        <p className="font-mono text-[10px] font-medium uppercase tracking-[0.28em] text-[#bc13fe] sm:text-xs">Signal boost</p>
+        <h2 id="newsletter-popup-title" className="mt-2 pr-10 font-mono text-lg text-[#00e8ff] sm:text-xl">
           Join the Sypher dispatch
         </h2>
         <p className="mt-2 text-sm leading-relaxed text-[#b0b0b0]">Weekly deconstructions, no fluff. Unsubscribe anytime.</p>

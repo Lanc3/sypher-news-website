@@ -42,12 +42,12 @@ export function HomeArticleFilters({ articles }: { articles: HomeArticle[] }) {
   }, [articles, category, minTransparency, fromDate]);
 
   const inputClass =
-    "min-h-11 w-full rounded-md border border-[#00ff41]/30 bg-[#080808] px-3 py-2 text-sm text-[#e0e0e0] shadow-inner shadow-black/40 transition focus:border-[#00ff41]/60 focus:outline-none focus:ring-1 focus:ring-[#00ff41]/40";
+    "min-h-11 w-full rounded-md border border-[#00e8ff]/30 bg-[#080808] px-3 py-2 text-sm text-[#e0e0e0] shadow-inner shadow-black/40 transition focus:border-[#00e8ff]/60 focus:outline-none focus:ring-1 focus:ring-[#00e8ff]/40";
 
   return (
     <div className="space-y-8 sm:space-y-10">
       <div className="panel p-4 sm:p-5">
-        <p className="mb-3 font-mono text-[10px] font-medium uppercase tracking-widest text-[#00ff41]/60 sm:mb-4">
+        <p className="mb-3 font-mono text-[10px] font-medium uppercase tracking-widest text-[#00e8ff]/60 sm:mb-4">
           Filters
         </p>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -88,7 +88,7 @@ export function HomeArticleFilters({ articles }: { articles: HomeArticle[] }) {
               className="panel panel-glow flex h-full flex-col p-4 sm:p-5"
             >
               <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] font-mono text-[#707070] sm:text-xs">
-                <span className="font-medium text-[#ff2bd6]/90">{a.categoryName}</span>
+                <span className="font-medium text-[#bc13fe]/90">{a.categoryName}</span>
                 <span className="text-[#555]" aria-hidden>
                   ·
                 </span>
@@ -98,11 +98,11 @@ export function HomeArticleFilters({ articles }: { articles: HomeArticle[] }) {
                     <span className="text-[#555]" aria-hidden>
                       ·
                     </span>
-                    <span className="rounded border border-[#00ff41]/35 px-1.5 py-0.5 text-[#00ff41]">T:{a.transparency}</span>
+                    <span className="rounded border border-[#00e8ff]/35 px-1.5 py-0.5 text-[#00e8ff]">T:{a.transparency}</span>
                   </>
                 ) : null}
               </div>
-              <span className="mt-3 font-mono text-base font-semibold leading-snug text-[#00ff41] sm:text-lg">
+              <span className="mt-3 font-mono text-base font-semibold leading-snug text-[#00e8ff] sm:text-lg">
                 {a.title}
               </span>
               {a.summary ? (
@@ -113,7 +113,7 @@ export function HomeArticleFilters({ articles }: { articles: HomeArticle[] }) {
         ))}
       </ul>
       {filtered.length === 0 ? (
-        <p className="rounded-md border border-dashed border-[#00ff41]/25 bg-black/30 py-10 text-center text-sm text-[#666]">
+        <p className="rounded-md border border-dashed border-[#00e8ff]/25 bg-black/30 py-10 text-center text-sm text-[#666]">
           No articles match filters.
         </p>
       ) : null}

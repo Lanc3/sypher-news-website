@@ -8,7 +8,7 @@ export default async function AdminAdsPage() {
 
   return (
     <div className="space-y-6 font-mono">
-      <h1 className="text-2xl text-[#00ff41]">Ad placements</h1>
+      <h1 className="text-2xl text-[#00e8ff]">Ad placements</h1>
       <p className="text-sm text-[#888]">Toggle slots wired through AdProvider on the public site.</p>
       <AdsForm placements={placements} />
     </div>

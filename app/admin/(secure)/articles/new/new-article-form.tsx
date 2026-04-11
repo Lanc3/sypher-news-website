@@ -63,7 +63,7 @@ export function NewArticleForm() {
         <Label htmlFor="summary">Summary</Label>
         <textarea
           id="summary"
-          className="min-h-[80px] w-full rounded border border-[#00ff41]/30 bg-[#080808] p-2 text-sm text-[#e0e0e0]"
+          className="min-h-[80px] w-full rounded border border-[#00e8ff]/30 bg-[#080808] p-2 text-sm text-[#e0e0e0]"
           value={summary}
           onChange={(e) => setSummary(e.target.value)}
         />
@@ -72,7 +72,7 @@ export function NewArticleForm() {
         <Label htmlFor="body">Body markdown</Label>
         <textarea
           id="body"
-          className="min-h-[240px] w-full rounded border border-[#00ff41]/30 bg-[#080808] p-2 text-sm text-[#e0e0e0]"
+          className="min-h-[240px] w-full rounded border border-[#00e8ff]/30 bg-[#080808] p-2 text-sm text-[#e0e0e0]"
           value={body}
           onChange={(e) => setBody(e.target.value)}
           required

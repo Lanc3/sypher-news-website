@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { articleIngestBodySchema } from "@/lib/ingest-schema";
 import { rateLimitIngest } from "@/lib/rate-limit";
 import { isReservedArticleSlug } from "@/lib/reserved-slugs";
+import { getApiKeyFromRequest } from "@/lib/request-api-key";
 import { Prisma } from "@prisma/client";
 
 export const runtime = "nodejs";
@@ -17,15 +18,6 @@ function jsonError(status: number, code: string, message: string, extra?: Record
   return NextResponse.json({ error: { code, message, ...extra } }, { status });
 }
 
-function getApiKey(req: Request): string | null {
-  const header = req.headers.get("authorization");
-  if (header?.toLowerCase().startsWith("bearer ")) {
-    return header.slice(7).trim() || null;
-  }
-  const alt = req.headers.get("x-api-key");
-  return alt?.trim() || null;
-}
-
 export async function GET() {
   return new NextResponse(null, { status: 405, headers: { Allow: "POST" } });
 }
@@ -35,7 +27,7 @@ export async function POST(req: Request) {
   if (!expected) {
     return jsonError(503, "ingest_disabled", "ARTICLES_INGEST_API_KEY is not configured");
   }
-  const key = getApiKey(req);
+  const key = getApiKeyFromRequest(req);
   if (!key || key !== expected) {
     return jsonError(401, "unauthorized", "Invalid or missing API key");
   }

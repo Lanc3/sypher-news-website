@@ -14,7 +14,21 @@ export default async function EditArticlePage({ params }: Props) {
 
   const article = await prisma.article.findUnique({
     where: { id: num },
-    include: { topic: { include: { category: true } } },
+    include: {
+      topic: { include: { category: true } },
+      authorLinks: {
+        orderBy: { position: "asc" },
+        include: { author: true },
+      },
+      corrections: {
+        orderBy: { createdAt: "desc" },
+        take: 5,
+      },
+      revisions: {
+        orderBy: { createdAt: "desc" },
+        take: 5,
+      },
+    },
   });
   if (!article) notFound();
 

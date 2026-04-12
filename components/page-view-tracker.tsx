@@ -11,7 +11,7 @@ export function PageViewTracker({ path, articleId }: { path: string; articleId?:
     void fetch("/api/analytics/view", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ path, articleId: articleId ?? undefined }),
+      body: JSON.stringify({ type: "PAGE_VIEW", path, articleId: articleId ?? undefined }),
     }).catch(() => {});
   }, [path, articleId]);
 

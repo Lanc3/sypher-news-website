@@ -15,11 +15,22 @@ async function main() {
     update: { passwordHash, role: "ADMIN" },
   });
 
+  const sypherDesk = await prisma.author.upsert({
+    where: { slug: "sypher-desk" },
+    create: {
+      slug: "sypher-desk",
+      name: "Sypher Desk",
+      title: "Editorial Desk",
+      bio: "The default Sypher News byline for newsroom analysis, curation, and desk-led coverage.",
+    },
+    update: {},
+  });
+
   for (const slot of [AdSlot.header, AdSlot.sidebar, AdSlot.in_article]) {
     await prisma.adPlacement.upsert({
       where: { slot },
-      create: { slot, enabled: false },
-      update: {},
+      create: { slot, enabled: false, providerKey: "google-adsense", format: "auto" },
+      update: { providerKey: "google-adsense", format: "auto" },
     });
   }
 
@@ -40,10 +51,13 @@ async function main() {
         roundNumber: 1,
       },
     });
-    await prisma.article.create({
+    const article = await prisma.article.create({
       data: {
         topicId: topic.id,
         slug: demoSlug,
+        status: "PUBLISHED",
+        publishedAt: new Date(),
+        featured: true,
         title: "Welcome to Sypher News (demo)",
         bodyMarkdown:
           "## Transmission\n\nThis **demo article** ships with the database seed. Replace it via admin or the ingest API.",
@@ -52,8 +66,16 @@ async function main() {
         articleAlignmentLabel: "balanced",
         articleAlignmentConfidence: 0.72,
         articleAlignmentRationale: "Synthetic alignment for UI testing.",
+        sourceBalanceSummary: "This seeded article is balanced across one synthetic demo source and one internal desk summary.",
         seoMetaTitle: "Sypher News — Demo",
         seoMetaDescription: "Cyberpunk news stack demo article.",
+      },
+    });
+    await prisma.articleAuthor.create({
+      data: {
+        articleId: article.id,
+        authorId: sypherDesk.id,
+        position: 0,
       },
     });
   }

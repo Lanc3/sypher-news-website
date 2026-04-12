@@ -14,7 +14,7 @@ export function NewsletterForm() {
     e.preventDefault();
     setPending(true);
     setMsg(null);
-    const res = await subscribeNewsletter(email);
+    const res = await subscribeNewsletter(email, "footer");
     setPending(false);
     setMsg(res.message);
     if (res.ok) setEmail("");
@@ -33,7 +33,7 @@ export function NewsletterForm() {
       <Button type="submit" disabled={pending} className="shrink-0 border-[#bc13fe]/50 text-[#bc13fe] hover:shadow-[0_0_16px_rgba(188,19,254,0.35)]">
         {pending ? "…" : "Subscribe"}
       </Button>
-      {msg ? <p className="text-xs text-[#888] sm:col-span-2">{msg}</p> : null}
+      {msg ? <p className="text-xs text-[#888] sm:col-span-2" aria-live="polite">{msg}</p> : null}
     </form>
   );
 }

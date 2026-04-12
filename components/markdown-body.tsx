@@ -38,7 +38,7 @@ export function MarkdownBody({ content, className }: { content: string; classNam
         remarkPlugins={[remarkGfm]}
         rehypePlugins={[[rehypeSanitize, schema]]}
         components={{
-          a: ({ node: _n, ...props }) => (
+          a: (props) => (
             <a {...props} target="_blank" rel="noopener noreferrer" className="underline decoration-[#bc13fe]/60 underline-offset-2" />
           ),
         }}

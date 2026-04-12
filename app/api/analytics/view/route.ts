@@ -2,12 +2,18 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { rateLimitAnalytics } from "@/lib/rate-limit";
+import { recordAnalyticsEvent } from "@/lib/analytics";
 
 export const runtime = "nodejs";
 
 const bodySchema = z.object({
-  path: z.string().min(1).max(2048).startsWith("/"),
+  type: z
+    .enum(["PAGE_VIEW", "SHARE", "NEWSLETTER_SUBMIT", "AD_CLICK", "SEARCH", "RELATED_CLICK", "ADSENSE_RENDER", "ADSENSE_BLOCKED"])
+    .default("PAGE_VIEW"),
+  path: z.string().min(1).max(2048).startsWith("/").optional(),
   articleId: z.number().int().positive().optional(),
+  placementId: z.string().min(1).optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
 });
 
 export async function POST(req: Request) {
@@ -29,13 +35,27 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: false }, { status: 422 });
   }
 
-  const { path, articleId } = parsed.data;
+  const { type, path, articleId, placementId, metadata } = parsed.data;
   try {
-    await prisma.pageView.create({
-      data: {
-        path,
-        articleId: articleId ?? null,
-      },
+    if (type === "PAGE_VIEW") {
+      await prisma.pageView.create({
+        data: {
+          path: path || "/",
+          articleId: articleId ?? null,
+        },
+      });
+    }
+    if (type === "AD_CLICK" && placementId) {
+      await prisma.adClick.create({
+        data: { placementId },
+      });
+    }
+    await recordAnalyticsEvent({
+      type,
+      path: path ?? null,
+      articleId: articleId ?? null,
+      placementId: placementId ?? null,
+      metadata: metadata ?? null,
     });
   } catch {
     return NextResponse.json({ ok: false }, { status: 500 });

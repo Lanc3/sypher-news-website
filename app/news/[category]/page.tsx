@@ -1,12 +1,26 @@
-import Link from "next/link";
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
+import { ArticleCard } from "@/components/article-card";
 import { SiteContainer } from "@/components/site-container";
+import { listArticlesByCategorySlug } from "@/lib/article-public";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 60;
 
 type Props = { params: Promise<{ category: string }> };
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { category: categorySlug } = await params;
+  const category = await prisma.category.findUnique({ where: { slug: categorySlug } });
+  if (!category) {
+    return { title: "Category" };
+  }
+  return {
+    title: `${category.name} news`,
+    description: category.description || `Read the latest ${category.name} reporting and analysis on Sypher News.`,
+  };
+}
 
 export default async function CategoryArticlesPage({ params }: Props) {
   const { category: categorySlug } = await params;
@@ -20,20 +34,10 @@ export default async function CategoryArticlesPage({ params }: Props) {
   }
   if (!category) notFound();
 
-  let articles: Awaited<ReturnType<typeof prisma.article.findMany>> = [];
-  try {
-    articles = await prisma.article.findMany({
-      where: { topic: { categoryId: category.id } },
-      orderBy: { createdAt: "desc" },
-      take: 100,
-      include: { topic: true },
-    });
-  } catch {
-    articles = [];
-  }
+  const articles = await listArticlesByCategorySlug(category.slug, 100);
 
   return (
-    <main className="flex-1 py-10 sm:py-14">
+    <main id="main-content" className="flex-1 py-10 sm:py-14">
       <SiteContainer max="md">
         <header className="panel px-5 py-6 sm:px-8 sm:py-8">
           <p className="font-mono text-[10px] font-medium uppercase tracking-[0.35em] text-[#bc13fe] sm:text-xs">Category</p>
@@ -46,17 +50,14 @@ export default async function CategoryArticlesPage({ params }: Props) {
         <ul className="mt-8 space-y-3 sm:mt-10 sm:space-y-4">
           {articles.map((a) => (
             <li key={a.id}>
-              <Link
+              <ArticleCard
                 href={`/news/${category.slug}/${a.slug}`}
-                className="panel panel-glow block px-4 py-4 sm:px-5 sm:py-5"
-              >
-                <span className="font-mono text-base font-semibold leading-snug text-[#bc13fe] sm:text-lg">{a.title}</span>
-                {a.summary ? (
-                  <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-[#777] sm:line-clamp-3">
-                    {a.summary.length > 220 ? `${a.summary.slice(0, 220)}…` : a.summary}
-                  </p>
-                ) : null}
-              </Link>
+                title={a.title}
+                summary={a.summary}
+                categoryName={category.name}
+                createdAt={a.publishedAt || a.createdAt}
+                transparency={a.articleAlignmentConfidence != null ? Math.round(a.articleAlignmentConfidence * 100) : null}
+              />
             </li>
           ))}
         </ul>

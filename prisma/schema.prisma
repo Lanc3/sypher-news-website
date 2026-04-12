@@ -18,13 +18,38 @@ enum AdSlot {
   in_article
 }
 
+enum ArticleStatus {
+  DRAFT
+  SCHEDULED
+  PUBLISHED
+  ARCHIVED
+}
+
+enum NewsletterStatus {
+  ACTIVE
+  PENDING
+  UNSUBSCRIBED
+}
+
+enum AnalyticsEventType {
+  PAGE_VIEW
+  SHARE
+  NEWSLETTER_SUBMIT
+  AD_CLICK
+  SEARCH
+  RELATED_CLICK
+  ADSENSE_RENDER
+  ADSENSE_BLOCKED
+}
+
 model User {
-  id           String   @id @default(cuid())
-  email        String   @unique
-  passwordHash String   @map("password_hash")
-  role         UserRole @default(EDITOR)
-  createdAt    DateTime @default(now()) @map("created_at")
-  updatedAt    DateTime @updatedAt @map("updated_at")
+  id               String            @id @default(cuid())
+  email            String            @unique
+  passwordHash     String            @map("password_hash")
+  role             UserRole          @default(EDITOR)
+  createdAt        DateTime          @default(now()) @map("created_at")
+  updatedAt        DateTime          @updatedAt @map("updated_at")
+  articleRevisions ArticleRevision[] @relation("EditorRevisions")
 
   @@map("users")
 }
@@ -41,20 +66,20 @@ model Category {
 }
 
 model Topic {
-  id                   Int       @id @default(autoincrement())
-  categoryId           Int       @map("category_id")
-  title                String    @db.VarChar(1024)
-  slug                 String    @db.VarChar(512)
-  roundNumber          Int       @default(1) @map("round_number")
-  status               String    @default("pending") @db.VarChar(32)
-  errorMessage         String?   @map("error_message") @db.Text
-  selectionRationale   String?   @map("selection_rationale") @db.Text
-  researchMarkdown     String?   @map("research_markdown") @db.Text
-  queryLog             String?   @map("query_log") @db.Text
-  createdAt            DateTime  @default(now()) @map("created_at")
-  updatedAt            DateTime  @updatedAt @map("updated_at")
-  category             Category  @relation(fields: [categoryId], references: [id], onDelete: Restrict)
-  articles             Article[]
+  id                 Int      @id @default(autoincrement())
+  categoryId         Int      @map("category_id")
+  title              String   @db.VarChar(1024)
+  slug               String   @db.VarChar(512)
+  roundNumber        Int      @default(1) @map("round_number")
+  status             String   @default("pending") @db.VarChar(32)
+  errorMessage       String?  @map("error_message") @db.Text
+  selectionRationale String?  @map("selection_rationale") @db.Text
+  researchMarkdown   String?  @map("research_markdown") @db.Text
+  queryLog           String?  @map("query_log") @db.Text
+  createdAt          DateTime @default(now()) @map("created_at")
+  updatedAt          DateTime @updatedAt @map("updated_at")
+  category           Category @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  articles           Article[]
 
   @@index([slug])
   @@index([categoryId])
@@ -62,74 +87,145 @@ model Topic {
 }
 
 model AuthorStyle {
-  id                    Int       @id @default(autoincrement())
-  name                  String    @unique @db.VarChar(255)
-  systemPromptFragment  String    @map("system_prompt_fragment") @db.Text
-  articles              Article[]
+  id                   Int       @id @default(autoincrement())
+  name                 String    @unique @db.VarChar(255)
+  systemPromptFragment String    @map("system_prompt_fragment") @db.Text
+  articles             Article[]
 
   @@map("author_styles")
 }
 
+model Author {
+  id           String          @id @default(cuid())
+  slug         String          @unique @db.VarChar(255)
+  name         String          @db.VarChar(255)
+  title        String?         @db.VarChar(255)
+  bio          String?         @db.Text
+  avatarUrl    String?         @map("avatar_url") @db.VarChar(2048)
+  socialLinks  Json?           @map("social_links")
+  createdAt    DateTime        @default(now()) @map("created_at")
+  updatedAt    DateTime        @updatedAt @map("updated_at")
+  articleLinks ArticleAuthor[]
+
+  @@map("authors")
+}
+
 model Article {
-  id                           Int              @id @default(autoincrement())
-  topicId                      Int              @map("topic_id")
-  title                        String           @db.VarChar(1024)
-  slug                         String           @unique @db.VarChar(512)
-  bodyMarkdown                 String           @map("body_markdown") @db.Text
-  summary                      String?          @db.Text
-  authorStyleId                Int?             @map("author_style_id")
-  researchMarkdown             String?          @map("research_markdown") @db.Text
-  sourceBalanceSummary         String?          @map("source_balance_summary") @db.Text
-  articleAlignmentLabel        String?          @map("article_alignment_label") @db.VarChar(64)
-  articleAlignmentConfidence   Float?           @map("article_alignment_confidence")
-  articleAlignmentRationale    String?          @map("article_alignment_rationale") @db.Text
-  seoMetaTitle                 String?          @map("seo_meta_title") @db.VarChar(128)
-  seoMetaDescription           String?          @map("seo_meta_description") @db.Text
-  seoKeywords                  String?          @map("seo_keywords") @db.Text
-  seoOgTitle                   String?          @map("seo_og_title") @db.VarChar(128)
-  seoOgDescription             String?          @map("seo_og_description") @db.Text
-  createdAt                    DateTime         @default(now()) @map("created_at")
-  topic                        Topic            @relation(fields: [topicId], references: [id], onDelete: Restrict)
-  authorStyle                  AuthorStyle?     @relation(fields: [authorStyleId], references: [id], onDelete: SetNull)
-  sources                      ArticleSource[]
-  pageViews                    PageView[]
+  id                         Int               @id @default(autoincrement())
+  topicId                    Int               @map("topic_id")
+  title                      String            @db.VarChar(1024)
+  slug                       String            @unique @db.VarChar(512)
+  status                     ArticleStatus     @default(PUBLISHED)
+  featured                   Boolean           @default(false)
+  bodyMarkdown               String            @map("body_markdown") @db.Text
+  summary                    String?           @db.Text
+  authorStyleId              Int?              @map("author_style_id")
+  researchMarkdown           String?           @map("research_markdown") @db.Text
+  sourceBalanceSummary       String?           @map("source_balance_summary") @db.Text
+  articleAlignmentLabel      String?           @map("article_alignment_label") @db.VarChar(64)
+  articleAlignmentConfidence Float?            @map("article_alignment_confidence")
+  articleAlignmentRationale  String?           @map("article_alignment_rationale") @db.Text
+  seoMetaTitle               String?           @map("seo_meta_title") @db.VarChar(128)
+  seoMetaDescription         String?           @map("seo_meta_description") @db.Text
+  seoKeywords                String?           @map("seo_keywords") @db.Text
+  seoOgTitle                 String?           @map("seo_og_title") @db.VarChar(128)
+  seoOgDescription           String?           @map("seo_og_description") @db.Text
+  publishedAt                DateTime?         @map("published_at")
+  scheduledFor               DateTime?         @map("scheduled_for")
+  createdAt                  DateTime          @default(now()) @map("created_at")
+  updatedAt                  DateTime          @updatedAt @map("updated_at")
+  topic                      Topic             @relation(fields: [topicId], references: [id], onDelete: Restrict)
+  authorStyle                AuthorStyle?      @relation(fields: [authorStyleId], references: [id], onDelete: SetNull)
+  sources                    ArticleSource[]
+  pageViews                  PageView[]
+  analyticsEvents            AnalyticsEvent[]
+  authorLinks                ArticleAuthor[]
+  revisions                  ArticleRevision[]
+  corrections                CorrectionNotice[]
 
   @@index([topicId])
   @@index([createdAt])
+  @@index([status, createdAt])
+  @@index([featured, createdAt])
   @@map("articles")
 }
 
+model ArticleAuthor {
+  articleId Int    @map("article_id")
+  authorId  String @map("author_id")
+  position  Int    @default(0)
+  article   Article @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  author    Author  @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@id([articleId, authorId])
+  @@index([authorId, position])
+  @@map("article_authors")
+}
+
+model ArticleRevision {
+  id        String   @id @default(cuid())
+  articleId Int      @map("article_id")
+  editorId  String?  @map("editor_id")
+  summary   String   @db.Text
+  createdAt DateTime @default(now()) @map("created_at")
+  article   Article  @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  editor    User?    @relation("EditorRevisions", fields: [editorId], references: [id], onDelete: SetNull)
+
+  @@index([articleId, createdAt])
+  @@map("article_revisions")
+}
+
+model CorrectionNotice {
+  id        String   @id @default(cuid())
+  articleId Int      @map("article_id")
+  summary   String   @db.Text
+  details   String?  @db.Text
+  createdAt DateTime @default(now()) @map("created_at")
+  article   Article  @relation(fields: [articleId], references: [id], onDelete: Cascade)
+
+  @@index([articleId, createdAt])
+  @@map("correction_notices")
+}
+
 model ArticleSource {
-  id                      Int       @id @default(autoincrement())
-  articleId               Int       @map("article_id")
-  url                     String    @db.VarChar(4096)
-  title                   String?   @db.VarChar(1024)
-  snippet                 String?   @db.Text
-  sourceDepth             Int?      @default(0) @map("source_depth")
-  sourceCredibilityTier   String?   @map("source_credibility_tier") @db.VarChar(64)
-  fetchError              String?   @map("fetch_error") @db.Text
-  alignmentAxis           String?   @map("alignment_axis") @db.VarChar(64)
-  alignmentLabel          String?   @map("alignment_label") @db.VarChar(64)
-  alignmentConfidence     Float?    @map("alignment_confidence")
-  alignmentRationale      String?   @map("alignment_rationale") @db.Text
-  alignmentAssessedAt     DateTime? @map("alignment_assessed_at")
-  alignmentModelVersion   String?   @map("alignment_model_version") @db.VarChar(64)
-  article                 Article   @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  id                    Int       @id @default(autoincrement())
+  articleId             Int       @map("article_id")
+  url                   String    @db.VarChar(4096)
+  title                 String?   @db.VarChar(1024)
+  snippet               String?   @db.Text
+  sourceDepth           Int?      @default(0) @map("source_depth")
+  sourceCredibilityTier String?   @map("source_credibility_tier") @db.VarChar(64)
+  fetchError            String?   @map("fetch_error") @db.Text
+  alignmentAxis         String?   @map("alignment_axis") @db.VarChar(64)
+  alignmentLabel        String?   @map("alignment_label") @db.VarChar(64)
+  alignmentConfidence   Float?    @map("alignment_confidence")
+  alignmentRationale    String?   @map("alignment_rationale") @db.Text
+  alignmentAssessedAt   DateTime? @map("alignment_assessed_at")
+  alignmentModelVersion String?   @map("alignment_model_version") @db.VarChar(64)
+  article               Article   @relation(fields: [articleId], references: [id], onDelete: Cascade)
 
   @@index([articleId])
   @@map("article_sources")
 }
 
 model AdPlacement {
-  id           String   @id @default(cuid())
-  slot         AdSlot   @unique
-  enabled      Boolean  @default(false)
-  providerKey  String?  @map("provider_key") @db.VarChar(512)
-  adUnitPath   String?  @map("ad_unit_path") @db.VarChar(512)
-  metadata     Json?
-  createdAt    DateTime @default(now()) @map("created_at")
-  updatedAt    DateTime @updatedAt @map("updated_at")
-  adClicks     AdClick[]
+  id             String           @id @default(cuid())
+  slot           AdSlot           @unique
+  enabled        Boolean          @default(false)
+  providerKey    String?          @map("provider_key") @db.VarChar(512)
+  adUnitPath     String?          @map("ad_unit_path") @db.VarChar(512)
+  adClient       String?          @map("ad_client") @db.VarChar(255)
+  slotId         String?          @map("slot_id") @db.VarChar(255)
+  format         String?          @db.VarChar(64)
+  layoutKey      String?          @map("layout_key") @db.VarChar(255)
+  targetPath     String?          @map("target_path") @db.VarChar(512)
+  notes          String?          @db.Text
+  metadata       Json?
+  style          Json?
+  createdAt      DateTime         @default(now()) @map("created_at")
+  updatedAt      DateTime         @updatedAt @map("updated_at")
+  adClicks       AdClick[]
+  analyticsEvents AnalyticsEvent[]
 
   @@map("ad_placements")
 }
@@ -158,10 +254,35 @@ model AdClick {
 }
 
 model NewsletterSubscriber {
-  id        String   @id @default(cuid())
-  email     String   @unique @db.VarChar(320)
-  consentAt DateTime @default(now()) @map("consent_at")
-  createdAt DateTime @default(now()) @map("created_at")
+  id               String           @id @default(cuid())
+  email            String           @unique @db.VarChar(320)
+  status           NewsletterStatus @default(ACTIVE)
+  source           String?          @db.VarChar(64)
+  providerId       String?          @map("provider_id") @db.VarChar(255)
+  providerStatus   String?          @map("provider_status") @db.VarChar(64)
+  unsubscribeToken String           @unique @map("unsubscribe_token") @db.VarChar(255) @default(cuid())
+  consentAt        DateTime         @default(now()) @map("consent_at")
+  lastConfirmedAt  DateTime?        @map("last_confirmed_at")
+  unsubscribedAt   DateTime?        @map("unsubscribed_at")
+  createdAt        DateTime         @default(now()) @map("created_at")
+  updatedAt        DateTime         @updatedAt @map("updated_at")
 
   @@map("newsletter_subscribers")
+}
+
+model AnalyticsEvent {
+  id          String             @id @default(cuid())
+  type        AnalyticsEventType
+  path        String?            @db.VarChar(2048)
+  articleId   Int?               @map("article_id")
+  placementId String?            @map("placement_id")
+  metadata    Json?
+  createdAt   DateTime           @default(now()) @map("created_at")
+  article     Article?           @relation(fields: [articleId], references: [id], onDelete: SetNull)
+  placement   AdPlacement?       @relation(fields: [placementId], references: [id], onDelete: SetNull)
+
+  @@index([type, createdAt])
+  @@index([articleId, createdAt])
+  @@index([placementId, createdAt])
+  @@map("analytics_events")
 }

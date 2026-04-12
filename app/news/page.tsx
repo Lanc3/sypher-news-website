@@ -1,10 +1,16 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import type { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { SiteContainer } from "@/components/site-container";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 60;
+
+export const metadata: Metadata = {
+  title: "News channels",
+  description: "Browse Sypher News channels and jump into category-based reporting.",
+};
 
 const categoryListArgs = {
   orderBy: { name: "asc" as const },
@@ -22,7 +28,7 @@ export default async function NewsIndexPage() {
   }
 
   return (
-    <main className="flex-1 py-10 sm:py-14">
+    <main id="main-content" className="flex-1 py-10 sm:py-14">
       <SiteContainer max="md">
         <header className="panel px-5 py-6 sm:px-8 sm:py-8">
           <p className="font-mono text-[10px] font-medium uppercase tracking-[0.35em] text-[#bc13fe] sm:text-xs">Index</p>

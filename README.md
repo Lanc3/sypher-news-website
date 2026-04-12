@@ -1,6 +1,10 @@
 # Sypher News Website
 
-Next.js news frontend with Prisma (PostgreSQL), NextAuth admin, ingest API, and cyberpunk UI.
+Next.js news frontend with Prisma (PostgreSQL), NextAuth admin, ingest API, AdSense-ready monetization, and cyberpunk UI.
+
+## Product mission
+
+Sypher News disassembles mainstream news coverage so readers can get the story with less bias, clearer sourcing, and more transparency.
 
 ## Environment variables
 
@@ -27,8 +31,19 @@ Admin login **will not work** unless NextAuth can sign cookies. Set at least one
 | `NEXTAUTH_SECRET` | Optional | Copied to `AUTH_SECRET` when `AUTH_SECRET` is unset. |
 | `ARTICLES_INGEST_API_KEY` | For ingest | Required for `POST /api/v1/articles` to accept traffic. |
 | `NEXT_PUBLIC_SITE_URL` | Recommended | Same public URL as `AUTH_URL` for metadata and JSON-LD. |
+| `NEXT_PUBLIC_ADSENSE_CLIENT` | Optional | Public AdSense client ID, typically `ca-pub-...`. Slot-level client IDs can also be configured in admin. |
 | `ADMIN_SEED_PASSWORD` | Seed only | Used when running `npm run db:seed` locally; not needed on Vercel runtime. |
-| `UPSTASH_REDIS_*` | Optional | Enables rate limits for ingest + analytics. |
+| `UPSTASH_REDIS_*` | Required in production | Enables rate limits for ingest + analytics. Production traffic should not run without it. |
+| `RESEND_API_KEY` | Optional | Enables newsletter audience sync with Resend. |
+| `RESEND_AUDIENCE_ID` | Optional | Required with `RESEND_API_KEY` for newsletter sync. |
+
+## Key product surfaces
+
+- Public trust pages: `/about`, `/contact`, `/editorial-standards`, `/corrections`, `/privacy`, `/terms`
+- Discovery: `/search`, curated homepage modules, category pages, related stories
+- Article UX: visible breadcrumbs, bylines, transparency panel, share actions, corrections, revision notes
+- Admin: dashboard, articles, authors, AdSense controls, analytics
+- Crawlability: `robots.txt` and `sitemap.xml`
 
 ## Database: migrate and seed
 
@@ -57,6 +72,18 @@ npm run db:seed:vercel
 Or set `DATABASE_URL` manually, then `npm run db:seed`. Optional: `ADMIN_SEED_PASSWORD` before seeding to choose the admin password (default **`changeme`**).
 
 Then sign in at `https://<your-domain>/admin/login` and change behavior via the admin UI.
+
+## Monetization and consent
+
+- Ad slots are managed from `/admin/ads`.
+- Google AdSense script loading is gated by client-side consent.
+- Disabled or misconfigured slots fall back safely instead of collapsing layout.
+
+## Newsletter lifecycle
+
+- Newsletter subscriptions are stored locally in Prisma.
+- Each subscriber receives a unique unsubscribe token.
+- If Resend Audience env vars are configured, subscribe and unsubscribe actions also sync to Resend.
 
 ## Deploy on Vercel
 

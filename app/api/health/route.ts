@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { isAuthorizedIngestKey, listIngestSecrets } from "@/lib/ingest-secrets";
 import { getApiKeyFromRequest } from "@/lib/request-api-key";
+import { hasResendAudienceConfig, hasUpstashConfig } from "@/lib/env";
 
 export const runtime = "nodejs";
 
@@ -65,5 +66,9 @@ export async function GET(req: Request) {
     ...base,
     handshake: "verified",
     database,
+    integrations: {
+      rateLimit: hasUpstashConfig() ? "configured" : "missing",
+      newsletter: hasResendAudienceConfig() ? "resend" : "local_only",
+    },
   });
 }

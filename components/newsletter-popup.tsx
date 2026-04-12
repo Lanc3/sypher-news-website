@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { X } from "lucide-react";
 import { subscribeNewsletter } from "@/app/actions/newsletter";
 import { Button } from "@/components/ui/button";
@@ -13,11 +13,13 @@ export function NewsletterPopup() {
   const [email, setEmail] = useState("");
   const [msg, setMsg] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
+  const closeRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
     if (sessionStorage.getItem(STORAGE_KEY)) return;
-    const t = window.setTimeout(() => setOpen(true), 8000);
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const t = window.setTimeout(() => setOpen(true), 15000);
     return () => window.clearTimeout(t);
   }, []);
 
@@ -26,11 +28,21 @@ export function NewsletterPopup() {
     setOpen(false);
   }
 
+  useEffect(() => {
+    if (!open) return;
+    closeRef.current?.focus();
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") dismiss();
+    }
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [open]);
+
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setPending(true);
     setMsg(null);
-    const res = await subscribeNewsletter(email);
+    const res = await subscribeNewsletter(email, "popup");
     setPending(false);
     setMsg(res.message);
     if (res.ok) {
@@ -47,9 +59,14 @@ export function NewsletterPopup() {
       role="dialog"
       aria-modal="true"
       aria-labelledby="newsletter-popup-title"
+      onClick={dismiss}
     >
-      <div className="panel panel-glow relative w-full max-w-md border-[#00e8ff]/40 p-5 shadow-[0_0_30px_rgba(0,232,255,0.12)] sm:p-6">
+      <div
+        className="panel panel-glow relative w-full max-w-md border-[#00e8ff]/40 p-5 shadow-[0_0_30px_rgba(0,232,255,0.12)] sm:p-6"
+        onClick={(event) => event.stopPropagation()}
+      >
         <button
+          ref={closeRef}
           type="button"
           aria-label="Close"
           onClick={dismiss}
@@ -76,7 +93,7 @@ export function NewsletterPopup() {
             {pending ? "…" : "Join"}
           </Button>
         </form>
-        {msg ? <p className="mt-3 text-xs text-[#888]">{msg}</p> : null}
+        {msg ? <p className="mt-3 text-xs text-[#888]" aria-live="polite">{msg}</p> : null}
       </div>
     </div>
   );

@@ -1,13 +1,17 @@
 import { notFound, permanentRedirect } from "next/navigation";
 import Link from "next/link";
 import type { Metadata } from "next";
-import { getArticleBySlug } from "@/lib/article-public";
+import { getArticleBySlug, listRelatedArticles } from "@/lib/article-public";
+import { ArticleBreadcrumbs } from "@/components/article-breadcrumbs";
 import { MarkdownBody } from "@/components/markdown-body";
 import { ArticleJsonLd } from "@/components/article-json-ld";
 import { PageViewTracker } from "@/components/page-view-tracker";
 import { InArticleAdSlot, SidebarAdSlot } from "@/components/ad-provider";
+import { RelatedArticles } from "@/components/related-articles";
+import { ShareActions } from "@/components/share-actions";
 import { siteUrl } from "@/lib/site-url";
 import { SiteContainer } from "@/components/site-container";
+import { TransparencyPanel } from "@/components/transparency-panel";
 
 /** Avoid caching notFound/redirect decisions while articles are ingested after deploy. */
 export const dynamic = "force-dynamic";
@@ -40,9 +44,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       title: ogTitle,
       description: ogDesc,
       type: "article",
-      publishedTime: article.createdAt.toISOString(),
+      publishedTime: (article.publishedAt || article.createdAt).toISOString(),
       section: article.topic?.category?.name ?? undefined,
       url: path,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: ogTitle,
+      description: ogDesc,
     },
   };
 }
@@ -59,11 +68,14 @@ export default async function ArticlePage({ params }: Props) {
   const path = `/news/${article.topic.category.slug}/${article.slug}`;
   const title = article.seoMetaTitle?.trim() || article.title;
   const description = (article.seoMetaDescription || article.summary || "").trim() || article.title;
+  const related = await listRelatedArticles(article.id, article.topic.category.id, 4);
 
   const transparency =
     article.articleAlignmentConfidence != null
       ? Math.round(article.articleAlignmentConfidence * 100)
       : null;
+  const authorLinks = article.authorLinks;
+  const articleUrl = `${siteUrl()}${path}`;
 
   return (
     <>
@@ -71,14 +83,19 @@ export default async function ArticlePage({ params }: Props) {
         title={title}
         description={description}
         urlPath={path}
-        datePublished={article.createdAt.toISOString()}
+        datePublished={(article.publishedAt || article.createdAt).toISOString()}
         section={article.topic.category.name}
       />
       <PageViewTracker path={path} articleId={article.id} />
-      <main className="flex-1 py-8 sm:py-10 lg:py-12">
+      <main id="main-content" className="flex-1 py-8 sm:py-10 lg:py-12">
         <SiteContainer max="lg" className="flex flex-col gap-8 lg:flex-row lg:items-start lg:gap-10">
           <article className="min-w-0 flex-1">
             <div className="panel px-4 py-6 sm:px-6 sm:py-8 lg:px-8 lg:py-10">
+              <ArticleBreadcrumbs
+                categorySlug={article.topic.category.slug}
+                categoryName={article.topic.category.name}
+                title={article.title}
+              />
               <p className="text-magenta-glow font-mono text-[10px] font-medium uppercase tracking-[0.28em] text-[#bc13fe] sm:text-xs">
                 /news/{article.topic.category.slug}
               </p>
@@ -86,7 +103,13 @@ export default async function ArticlePage({ params }: Props) {
                 {article.title}
               </h1>
               <div className="mt-4 flex flex-wrap gap-2 text-[11px] font-mono text-[#888] sm:gap-3 sm:text-xs">
-                <time dateTime={article.createdAt.toISOString()}>{article.createdAt.toISOString().slice(0, 10)}</time>
+                <time dateTime={(article.publishedAt || article.createdAt).toISOString()}>
+                  Published {(article.publishedAt || article.createdAt).toISOString().slice(0, 10)}
+                </time>
+                <span className="text-[#555]" aria-hidden>
+                  ·
+                </span>
+                <time dateTime={article.updatedAt.toISOString()}>Updated {article.updatedAt.toISOString().slice(0, 10)}</time>
                 {transparency != null ? (
                   <span className="rounded border border-[#00e8ff]/40 px-2 py-0.5 text-[#00e8ff]">
                     Transparency index ~{transparency}
@@ -96,8 +119,38 @@ export default async function ArticlePage({ params }: Props) {
                   <span className="text-[#bc13fe]/80">alignment: {article.articleAlignmentLabel}</span>
                 ) : null}
               </div>
+              <div className="mt-4 flex flex-wrap items-center gap-2 text-sm text-[#a7a7a7]">
+                <span className="font-mono uppercase tracking-[0.2em] text-[#666]">Byline</span>
+                {authorLinks.length > 0 ? (
+                  authorLinks.map((link) => (
+                    <Link
+                      key={link.authorId}
+                      href={`/authors/${link.author.slug}`}
+                      className="text-[#bc13fe] underline decoration-[#bc13fe]/40 underline-offset-4 hover:decoration-[#bc13fe]"
+                    >
+                      {link.author.name}
+                    </Link>
+                  ))
+                ) : (
+                  <span className="text-[#bc13fe]">Sypher Desk</span>
+                )}
+              </div>
 
               <div className="mt-8 space-y-10 sm:mt-10">
+                {article.corrections.length > 0 ? (
+                  <section className="panel border-[#bc13fe]/30 bg-black/60 p-4">
+                    <h2 className="font-mono text-xs uppercase tracking-[0.2em] text-[#bc13fe]">Corrections</h2>
+                    <ul className="mt-3 space-y-3 text-sm text-[#d7d7d7]">
+                      {article.corrections.map((notice) => (
+                        <li key={notice.id}>
+                          <p>{notice.summary}</p>
+                          {notice.details ? <p className="mt-1 text-[#9a9a9a]">{notice.details}</p> : null}
+                        </li>
+                      ))}
+                    </ul>
+                  </section>
+                ) : null}
+
                 <section>
                   <h2 className="mb-3 font-mono text-xs font-medium uppercase tracking-widest text-[#e0e0e0]/70 sm:text-sm">
                     Transmission
@@ -105,21 +158,37 @@ export default async function ArticlePage({ params }: Props) {
                   <MarkdownBody content={article.bodyMarkdown} />
                 </section>
 
+                <TransparencyPanel
+                  transparency={transparency}
+                  label={article.articleAlignmentLabel}
+                  sourceBalanceSummary={article.sourceBalanceSummary}
+                  rationale={article.articleAlignmentRationale}
+                />
+
+                <ShareActions url={articleUrl} title={article.title} />
+
                 <InArticleAdSlot />
 
-                {(article.researchMarkdown || article.articleAlignmentRationale) && (
+                {(article.researchMarkdown || article.revisions.length > 0) && (
                   <section className="panel border-[#00e8ff]/35 bg-black/70 p-4 sm:p-5">
                     <h2 className="font-mono text-xs font-medium uppercase tracking-widest text-[#00e8ff] sm:text-sm">
                       :: DISASSEMBLY
                     </h2>
                     <div className="mt-3 font-mono text-sm text-[#c8eef8]">
                       {article.researchMarkdown ? <MarkdownBody content={article.researchMarkdown} /> : null}
-                      {article.articleAlignmentRationale ? (
+                      {article.revisions.length > 0 ? (
                         <div className="mt-4 border-t border-[#00e8ff]/20 pt-4 text-[#a0a0a0]">
                           <p className="text-[10px] font-medium uppercase tracking-widest text-[#bc13fe] sm:text-xs">
-                            Alignment rationale
+                            Recent editorial updates
                           </p>
-                          <MarkdownBody content={article.articleAlignmentRationale} />
+                          <ul className="mt-3 space-y-2 text-sm">
+                            {article.revisions.map((revision) => (
+                              <li key={revision.id}>
+                                <span className="text-[#e9f6f8]">{revision.summary}</span>
+                                <span className="ml-2 text-[#777]">{revision.createdAt.toISOString().slice(0, 10)}</span>
+                              </li>
+                            ))}
+                          </ul>
                         </div>
                       ) : null}
                     </div>
@@ -151,6 +220,8 @@ export default async function ArticlePage({ params }: Props) {
                     </ul>
                   </section>
                 ) : null}
+
+                <RelatedArticles articles={related} />
 
                 <Link
                   href="/"

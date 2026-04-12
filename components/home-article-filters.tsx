@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import Link from "next/link";
+import { ArticleCard } from "@/components/article-card";
 
 export type HomeArticle = {
   id: number;
@@ -83,32 +83,14 @@ export function HomeArticleFilters({ articles }: { articles: HomeArticle[] }) {
       <ul className="grid gap-4 sm:grid-cols-2 sm:gap-5 lg:gap-6">
         {filtered.map((a) => (
           <li key={a.id}>
-            <Link
+            <ArticleCard
               href={`/news/${a.categorySlug}/${a.slug}`}
-              className="panel panel-glow flex h-full flex-col p-4 sm:p-5"
-            >
-              <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] font-mono text-[#707070] sm:text-xs">
-                <span className="font-medium text-[#bc13fe]/90">{a.categoryName}</span>
-                <span className="text-[#555]" aria-hidden>
-                  ·
-                </span>
-                <time dateTime={a.createdAt}>{a.createdAt.slice(0, 10)}</time>
-                {a.transparency != null ? (
-                  <>
-                    <span className="text-[#555]" aria-hidden>
-                      ·
-                    </span>
-                    <span className="rounded border border-[#00e8ff]/35 px-1.5 py-0.5 text-[#00e8ff]">T:{a.transparency}</span>
-                  </>
-                ) : null}
-              </div>
-              <span className="mt-3 font-mono text-base font-semibold leading-snug text-[#00e8ff] sm:text-lg">
-                {a.title}
-              </span>
-              {a.summary ? (
-                <p className="mt-2 line-clamp-3 text-sm leading-relaxed text-[#9a9a9a]">{a.summary}</p>
-              ) : null}
-            </Link>
+              title={a.title}
+              summary={a.summary}
+              categoryName={a.categoryName}
+              createdAt={a.createdAt}
+              transparency={a.transparency}
+            />
           </li>
         ))}
       </ul>

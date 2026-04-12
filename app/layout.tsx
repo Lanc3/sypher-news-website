@@ -21,7 +21,7 @@ export const metadata: Metadata = {
     default: "Sypher News",
     template: "%s · Sypher News",
   },
-  description: "We disassemble mainstream news coverage so you can get the story with less bias, clearer sourcing, and more transparency.",
+  description: "Sypher News uses AI-driven deep research to generate articles, categories, and topics from current global news as part of a fully automated news system.",
   keywords: ["news analysis", "bias analysis", "news transparency", "media criticism", "Sypher News"],
 };
 

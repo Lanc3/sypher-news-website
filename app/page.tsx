@@ -12,15 +12,15 @@ export const revalidate = 60;
 
 export const metadata: Metadata = {
   title: "Disassemble the headline",
-  description: "Sypher News disassembles mainstream news coverage so you can read the story with less bias, clearer sourcing, and more transparency.",
+  description: "Sypher News uses AI-driven deep research to generate articles, categories, and topics from current global news as part of a fully automated news system.",
   openGraph: {
     title: "Sypher News",
-    description: "Disassemble mainstream coverage with clearer sourcing and transparency.",
+    description: "AI-generated deep-research coverage built toward a fully automated news system.",
   },
   twitter: {
     card: "summary_large_image",
     title: "Sypher News",
-    description: "Read the story with less bias, clearer sourcing, and more transparency.",
+    description: "AI-generated deep-research coverage built toward a fully automated news system.",
   },
 };
 
@@ -114,7 +114,7 @@ export default async function HomePage() {
         <HomeSection
           eyebrow="Wire"
           title="Latest wire"
-          description="Filter by channel, transparency, or date to drill into the latest published stories."
+          description="Filter the latest AI-generated stories produced through deep research on current news across the globe."
         >
           <HomeArticleFilters articles={articles} />
         </HomeSection>

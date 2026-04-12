@@ -19,7 +19,7 @@ export function SiteFooter() {
           <div>
             <p className="font-mono text-sm font-semibold tracking-wide text-[#00e8ff]">Sypher News</p>
             <p className="mt-3 max-w-md text-sm leading-relaxed text-[#a8a8a8] sm:text-[0.9375rem]">
-              We disassemble mainstream news coverage so you can get the story with less bias, clearer sourcing, and more transparency.
+              AI-generated articles, categories, and topics built through deep research on current news worldwide. The mission is a fully automated news system.
             </p>
           </div>
           <div>

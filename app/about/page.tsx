@@ -3,7 +3,7 @@ import { InfoPage, InfoSection } from "@/components/info-page";
 
 export const metadata: Metadata = {
   title: "About",
-  description: "Learn how Sypher News disassembles mainstream coverage to surface sourcing, framing, and bias signals.",
+  description: "Learn how Sypher News uses AI-driven deep research to generate global coverage as part of a fully automated news system.",
 };
 
 export default function AboutPage() {
@@ -11,16 +11,16 @@ export default function AboutPage() {
     <InfoPage
       eyebrow="Mission"
       title="About Sypher News"
-      intro="We disassemble mainstream news coverage so you can get the story with less bias, clearer sourcing, and more transparency."
+      intro="Sypher News uses AI-driven deep research to generate articles, categories, and topics from current news around the world. Our goal is to build a fully automated news system."
     >
       <InfoSection title="What we do">
-        <p>Sypher News is built to break stories apart, not just repeat them. We examine sourcing, framing, transparency, and narrative pressure so readers can judge the story on evidence instead of spin.</p>
+        <p>Sypher News is an AI-generated news platform built to monitor current events, conduct deep research, and assemble coverage without relying on a traditional manual newsroom workflow.</p>
       </InfoSection>
       <InfoSection title="How we think">
-        <p>Our editorial goal is not to claim perfect neutrality. It is to show our work, surface where bias may exist, and make the reporting chain easier to inspect.</p>
+        <p>Our system is designed to reduce manual bottlenecks and move toward full automation while still surfacing sourcing, framing, and transparency signals that readers can inspect for themselves.</p>
       </InfoSection>
       <InfoSection title="Why it matters">
-        <p>Most readers do not need louder headlines. They need clearer context. Sypher News is designed to help you inspect the inputs behind the story before you accept the framing.</p>
+        <p>The long-term goal is a fully automated news system that can continuously research, organize, and publish global coverage at scale while making the process more transparent than traditional outlets.</p>
       </InfoSection>
     </InfoPage>
   );

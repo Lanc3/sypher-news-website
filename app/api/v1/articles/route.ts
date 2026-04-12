@@ -1,7 +1,9 @@
 import { NextResponse } from "next/server";
 import { articleIngestBodySchema } from "@/lib/ingest-schema";
+import { isAuthorizedIngestKey, listIngestSecrets } from "@/lib/ingest-secrets";
 import { rateLimitIngest } from "@/lib/rate-limit";
 import { getApiKeyFromRequest } from "@/lib/request-api-key";
+import { parseSypherBundle } from "@/lib/sypher-bundle-to-ingest";
 import {
   persistArticleIngest,
   ReservedSlugError,
@@ -12,6 +14,8 @@ import { Prisma } from "@prisma/client";
 export const runtime = "nodejs";
 
 const MAX_BODY_BYTES = 2 * 1024 * 1024;
+const MAX_BODY_BYTES_BULK = 32 * 1024 * 1024;
+const SYPHER_INGEST_BULK_FORMAT = "sypher_ingest_v1";
 
 function jsonError(status: number, code: string, message: string, extra?: Record<string, unknown>) {
   return NextResponse.json({ error: { code, message, ...extra } }, { status });
@@ -22,12 +26,12 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
-  const expected = process.env.ARTICLES_INGEST_API_KEY;
-  if (!expected) {
-    return jsonError(503, "ingest_disabled", "ARTICLES_INGEST_API_KEY is not configured");
+  const secrets = listIngestSecrets();
+  if (secrets.length === 0) {
+    return jsonError(503, "ingest_disabled", "Set SYPHER_INGEST_TOKEN or ARTICLES_INGEST_API_KEY");
   }
   const key = getApiKeyFromRequest(req);
-  if (!key || key !== expected) {
+  if (!isAuthorizedIngestKey(key)) {
     return jsonError(401, "unauthorized", "Invalid or missing API key");
   }
 
@@ -41,7 +45,7 @@ export async function POST(req: Request) {
   }
 
   const len = Number(req.headers.get("content-length") || "0");
-  if (len > MAX_BODY_BYTES) {
+  if (len > MAX_BODY_BYTES_BULK) {
     return jsonError(413, "payload_too_large", "Request body too large");
   }
 
@@ -52,15 +56,69 @@ export async function POST(req: Request) {
     return jsonError(400, "invalid_json", "Malformed JSON body");
   }
 
-  const parsed = articleIngestBodySchema.safeParse(body);
+  const isBulk =
+    body !== null &&
+    typeof body === "object" &&
+    (body as { format?: unknown }).format === SYPHER_INGEST_BULK_FORMAT &&
+    Array.isArray((body as { items?: unknown }).items);
+
+  if (isBulk) {
+    const items = (body as { items: unknown[] }).items;
+    const slugs: string[] = [];
+    const outcomes: { slug: string; outcome: "created" | "updated" }[] = [];
+
+    try {
+      for (let i = 0; i < items.length; i++) {
+        const parsed = parseSypherBundle(items[i]);
+        if (!parsed.ok) {
+          return jsonError(400, "bulk_item_invalid", parsed.message, {
+            index: i,
+            ...(parsed.issues ? { issues: parsed.issues } : {}),
+          });
+        }
+        const outcome = await persistArticleIngest(parsed.data, { upsert: true });
+        slugs.push(parsed.data.slug);
+        outcomes.push({ slug: parsed.data.slug, outcome });
+      }
+      return NextResponse.json({ ok: true, bulk: true, count: slugs.length, slugs, outcomes }, { status: 201 });
+    } catch (e) {
+      if (e instanceof ReservedSlugError) {
+        return jsonError(422, "reserved_slug", "Slug is reserved");
+      }
+      if (e instanceof SlugConflictError) {
+        return jsonError(409, "slug_conflict", "An article with this slug already exists");
+      }
+      if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2002") {
+        return jsonError(409, "slug_conflict", "An article with this slug already exists");
+      }
+      console.error("[v1/articles bulk]", e);
+      return jsonError(500, "server_error", "Failed to persist bulk articles");
+    }
+  }
+
+  if (len > MAX_BODY_BYTES) {
+    return jsonError(413, "payload_too_large", "Request body too large");
+  }
+
+  let allowUpsert = false;
+  let parsed = articleIngestBodySchema.safeParse(body);
   if (!parsed.success) {
-    return jsonError(422, "validation_error", "Invalid payload", {
-      issues: parsed.error.flatten(),
-    });
+    const sypherParsed = parseSypherBundle(body);
+    if (!sypherParsed.ok) {
+      return jsonError(422, "validation_error", "Invalid payload", {
+        issues: parsed.error.flatten(),
+      });
+    }
+    allowUpsert = true;
+    parsed = { success: true, data: sypherParsed.data };
   }
 
   try {
-    await persistArticleIngest(parsed.data, { upsert: false });
+    const outcome = await persistArticleIngest(parsed.data, { upsert: allowUpsert });
+    return NextResponse.json(
+      { ok: true, bulk: false, slug: parsed.data.slug, outcome },
+      { status: outcome === "created" ? 201 : 200 },
+    );
   } catch (e) {
     if (e instanceof ReservedSlugError) {
       return jsonError(422, "reserved_slug", "Slug is reserved");
@@ -75,5 +133,4 @@ export async function POST(req: Request) {
     return jsonError(500, "server_error", "Failed to persist article");
   }
 
-  return NextResponse.json({ ok: true, slug: parsed.data.slug }, { status: 201 });
 }

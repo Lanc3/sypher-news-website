@@ -29,7 +29,7 @@ Admin login **will not work** unless NextAuth can sign cookies. Set at least one
 | `AUTH_URL` | Yes* | Canonical `https://…` site URL. *Or `NEXTAUTH_URL`, or rely on `VERCEL_URL` fallback on Vercel only. |
 | `NEXTAUTH_URL` | Optional | Same as `AUTH_URL` if you prefer the legacy name. |
 | `NEXTAUTH_SECRET` | Optional | Copied to `AUTH_SECRET` when `AUTH_SECRET` is unset. |
-| `ARTICLES_INGEST_API_KEY` | For ingest | Required for `POST /api/v1/articles` to accept traffic. |
+| `ARTICLES_INGEST_API_KEY` | For ingest | Required for website ingest. Accepts traffic on `POST /api/v1/articles`, `POST /api/sypher/articles`, and verified `GET /api/health`. |
 | `NEXT_PUBLIC_SITE_URL` | Recommended | Same public URL as `AUTH_URL` for metadata and JSON-LD. |
 | `NEXT_PUBLIC_ADSENSE_CLIENT` | Optional | Public AdSense client ID, typically `ca-pub-...`. Slot-level client IDs can also be configured in admin. |
 | `ADMIN_SEED_PASSWORD` | Seed only | Used when running `npm run db:seed` locally; not needed on Vercel runtime. |
@@ -92,6 +92,10 @@ Then sign in at `https://<your-domain>/admin/login` and change behavior via the 
 3. Set **Root Directory** to the repo root (default).
 4. Add environment variables (`DATABASE_URL`, `AUTH_SECRET`, `AUTH_URL`, `NEXT_PUBLIC_SITE_URL`, `ARTICLES_INGEST_API_KEY`, …).
 5. Deploy. Ensure the Postgres database allows connections from Vercel (Neon: no IP allowlist issues; some providers need `0.0.0.0/0` or Vercel integration).
+
+For Sypher backend remote sync, point the sender at:
+- Handshake: `GET /api/health`
+- Article upsert path: `POST /api/sypher/articles` (preferred) or `POST /api/v1/articles`
 
 ## GitHub
 

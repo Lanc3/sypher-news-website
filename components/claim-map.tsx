@@ -9,6 +9,37 @@ type Claim = {
   what_is_missing: string;
 };
 
+function asStringArray(value: unknown): string[] {
+  if (!Array.isArray(value)) return [];
+  return value.filter((item): item is string => typeof item === "string");
+}
+
+function normalizeClaims(value: unknown): Claim[] {
+  const rawClaims = Array.isArray(value)
+    ? value
+    : value && typeof value === "object"
+      ? (
+          "claims" in value && Array.isArray(value.claims)
+            ? value.claims
+            : "items" in value && Array.isArray(value.items)
+              ? value.items
+              : []
+        )
+      : [];
+
+  return rawClaims
+    .filter((item): item is Record<string, unknown> => Boolean(item) && typeof item === "object")
+    .map((item) => ({
+      claim: typeof item.claim === "string" ? item.claim : "",
+      sources_supporting: asStringArray(item.sources_supporting),
+      sources_contradicting: asStringArray(item.sources_contradicting),
+      confidence_tag: typeof item.confidence_tag === "string" ? item.confidence_tag : "UNVERIFIED",
+      who_benefits: typeof item.who_benefits === "string" ? item.who_benefits : "",
+      what_is_missing: typeof item.what_is_missing === "string" ? item.what_is_missing : "",
+    }))
+    .filter((item) => item.claim.length > 0);
+}
+
 function tagStyle(tag: string): string {
   const t = tag.toUpperCase();
   if (t === "VERIFIED") return "border-green-500/50 text-green-400";
@@ -26,8 +57,9 @@ function domainOf(url: string): string {
   }
 }
 
-export function ClaimMap({ claims }: { claims: Claim[] | null }) {
-  if (!claims || claims.length === 0) return null;
+export function ClaimMap({ claims }: { claims: Claim[] | null | unknown }) {
+  const normalizedClaims = normalizeClaims(claims);
+  if (normalizedClaims.length === 0) return null;
 
   return (
     <section>
@@ -38,7 +70,7 @@ export function ClaimMap({ claims }: { claims: Claim[] | null }) {
         Each factual claim extracted from this article, with its supporting evidence and gaps.
       </p>
       <div className="space-y-3">
-        {claims.map((c, idx) => (
+        {normalizedClaims.map((c, idx) => (
           <div key={idx} className="panel border-[#00e8ff]/15 p-3 sm:p-4">
             <span
               className={`inline-block rounded border px-2 py-0.5 font-mono text-[10px] uppercase tracking-wider ${tagStyle(c.confidence_tag)}`}

@@ -30,7 +30,7 @@ export function getEnv() {
 
 export function getCanonicalSiteUrl() {
   const env = getEnv();
-  return env.NEXT_PUBLIC_SITE_URL || env.AUTH_URL || env.NEXTAUTH_URL || "http://localhost:3000";
+  return env.NEXT_PUBLIC_SITE_URL || env.AUTH_URL || env.NEXTAUTH_URL || "http://localhost:3002";
 }
 
 export function assertRuntimeEnv() {

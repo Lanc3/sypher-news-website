@@ -83,6 +83,14 @@ export function sypherBundleToIngestCandidate(bundle: unknown): unknown | null {
         s.alignment_model_version === null || s.alignment_model_version === undefined
           ? undefined
           : str(s.alignment_model_version as string),
+      stakeholder_role:
+        s.stakeholder_role === null || s.stakeholder_role === undefined
+          ? null
+          : str(s.stakeholder_role as string),
+      editorial_frame:
+        s.editorial_frame === null || s.editorial_frame === undefined
+          ? null
+          : str(s.editorial_frame as string),
     }))
     .filter((s) => s.url);
 
@@ -123,6 +131,9 @@ export function sypherBundleToIngestCandidate(bundle: unknown): unknown | null {
       a.seo_og_description === null || a.seo_og_description === undefined
         ? null
         : (a.seo_og_description as string | null),
+    claim_map: a.claim_map ?? null,
+    confidence_dashboard: a.confidence_dashboard ?? null,
+    perspective_spectrum: a.perspective_spectrum ?? null,
   };
 }
 

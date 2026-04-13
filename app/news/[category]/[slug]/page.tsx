@@ -3,7 +3,6 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { getArticleBySlug, listRelatedArticles } from "@/lib/article-public";
 import { ArticleBreadcrumbs } from "@/components/article-breadcrumbs";
-import { MarkdownBody } from "@/components/markdown-body";
 import { ArticleJsonLd } from "@/components/article-json-ld";
 import { PageViewTracker } from "@/components/page-view-tracker";
 import { InArticleAdSlot, SidebarAdSlot } from "@/components/ad-provider";
@@ -12,6 +11,10 @@ import { ShareActions } from "@/components/share-actions";
 import { siteUrl } from "@/lib/site-url";
 import { SiteContainer } from "@/components/site-container";
 import { TransparencyPanel } from "@/components/transparency-panel";
+import { ConfidenceDashboard } from "@/components/confidence-dashboard";
+import { ClaimMap } from "@/components/claim-map";
+import { PerspectiveSpectrum } from "@/components/perspective-spectrum";
+import { DisassemblyTabs } from "@/components/disassembly-tabs";
 
 /** Avoid caching notFound/redirect decisions while articles are ingested after deploy. */
 export const dynamic = "force-dynamic";
@@ -76,6 +79,42 @@ export default async function ArticlePage({ params }: Props) {
       : null;
   const authorLinks = article.authorLinks;
   const articleUrl = `${siteUrl()}${path}`;
+
+  function safeJson<T>(raw: string | null | undefined): T | null {
+    if (!raw) return null;
+    try {
+      return JSON.parse(raw) as T;
+    } catch {
+      return null;
+    }
+  }
+
+  const claimMap = safeJson<Array<{
+    claim: string;
+    sources_supporting: string[];
+    sources_contradicting: string[];
+    confidence_tag: string;
+    who_benefits: string;
+    what_is_missing: string;
+  }>>(article.claimMapJson);
+
+  const confidenceDashboard = safeJson<{
+    total_claims: number;
+    verified: number;
+    partially_verified: number;
+    single_source: number;
+    unverifiable: number;
+    overall_evidence_strength: string;
+    source_domain_count: number;
+  }>(article.confidenceDashboardJson);
+
+  const perspectiveSpectrum = safeJson<Array<{
+    source: string;
+    url: string;
+    stakeholder_role: string;
+    editorial_frame: string;
+    alignment_label: string;
+  }>>(article.perspectiveSpectrumJson);
 
   return (
     <>
@@ -151,12 +190,35 @@ export default async function ArticlePage({ params }: Props) {
                   </section>
                 ) : null}
 
+                <ConfidenceDashboard dashboard={confidenceDashboard} />
+
                 <section>
                   <h2 className="mb-3 font-mono text-xs font-medium uppercase tracking-widest text-[#e0e0e0]/70 sm:text-sm">
-                    Transmission
+                    :: DISASSEMBLY
                   </h2>
-                  <MarkdownBody content={article.bodyMarkdown} />
+                  <DisassemblyTabs
+                    bodyMarkdown={article.bodyMarkdown}
+                    researchMarkdown={article.researchMarkdown}
+                  />
                 </section>
+
+                {article.revisions.length > 0 && (
+                  <section className="panel border-[#00e8ff]/20 bg-black/50 p-4 sm:p-5">
+                    <p className="font-mono text-[10px] font-medium uppercase tracking-widest text-[#bc13fe] sm:text-xs">
+                      Recent editorial updates
+                    </p>
+                    <ul className="mt-3 space-y-2 text-sm">
+                      {article.revisions.map((revision) => (
+                        <li key={revision.id}>
+                          <span className="text-[#e9f6f8]">{revision.summary}</span>
+                          <span className="ml-2 text-[#777]">{revision.createdAt.toISOString().slice(0, 10)}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </section>
+                )}
+
+                <ClaimMap claims={claimMap} />
 
                 <TransparencyPanel
                   transparency={transparency}
@@ -165,61 +227,18 @@ export default async function ArticlePage({ params }: Props) {
                   rationale={article.articleAlignmentRationale}
                 />
 
+                <PerspectiveSpectrum
+                  spectrum={perspectiveSpectrum}
+                  sources={article.sources}
+                  sourceBalanceSummary={article.sourceBalanceSummary}
+                  articleAlignmentLabel={article.articleAlignmentLabel}
+                  articleAlignmentConfidence={article.articleAlignmentConfidence}
+                  articleAlignmentRationale={article.articleAlignmentRationale}
+                />
+
                 <ShareActions url={articleUrl} title={article.title} />
 
                 <InArticleAdSlot />
-
-                {(article.researchMarkdown || article.revisions.length > 0) && (
-                  <section className="panel border-[#00e8ff]/35 bg-black/70 p-4 sm:p-5">
-                    <h2 className="font-mono text-xs font-medium uppercase tracking-widest text-[#00e8ff] sm:text-sm">
-                      :: DISASSEMBLY
-                    </h2>
-                    <div className="mt-3 font-mono text-sm text-[#c8eef8]">
-                      {article.researchMarkdown ? <MarkdownBody content={article.researchMarkdown} /> : null}
-                      {article.revisions.length > 0 ? (
-                        <div className="mt-4 border-t border-[#00e8ff]/20 pt-4 text-[#a0a0a0]">
-                          <p className="text-[10px] font-medium uppercase tracking-widest text-[#bc13fe] sm:text-xs">
-                            Recent editorial updates
-                          </p>
-                          <ul className="mt-3 space-y-2 text-sm">
-                            {article.revisions.map((revision) => (
-                              <li key={revision.id}>
-                                <span className="text-[#e9f6f8]">{revision.summary}</span>
-                                <span className="ml-2 text-[#777]">{revision.createdAt.toISOString().slice(0, 10)}</span>
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      ) : null}
-                    </div>
-                  </section>
-                )}
-
-                {article.sources.length > 0 ? (
-                  <section>
-                    <h2 className="mb-3 font-mono text-xs font-medium uppercase tracking-widest text-[#e0e0e0]/70 sm:text-sm">
-                      Source matrix
-                    </h2>
-                    <ul className="space-y-3 text-sm">
-                      {article.sources.map((s) => (
-                        <li key={s.id} className="panel border-[#00e8ff]/12 p-3 sm:p-4">
-                          <a
-                            href={s.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="break-words text-[#bc13fe] underline decoration-[#bc13fe]/50 underline-offset-2 hover:decoration-[#bc13fe]"
-                          >
-                            {s.title || s.url}
-                          </a>
-                          {s.snippet ? <p className="mt-2 text-xs leading-relaxed text-[#9a9a9a] sm:text-sm">{s.snippet}</p> : null}
-                          {s.alignmentLabel ? (
-                            <p className="mt-2 text-[11px] font-mono text-[#00e8ff]/70 sm:text-xs">label: {s.alignmentLabel}</p>
-                          ) : null}
-                        </li>
-                      ))}
-                    </ul>
-                  </section>
-                ) : null}
 
                 <RelatedArticles articles={related} />
 

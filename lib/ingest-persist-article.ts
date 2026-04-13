@@ -43,7 +43,19 @@ const sourceRows = (dedupedSources: ArticleIngestBody["sources"]) =>
     alignmentRationale: s.alignment_rationale ?? null,
     alignmentAssessedAt: s.alignment_assessed_at ? new Date(s.alignment_assessed_at) : null,
     alignmentModelVersion: s.alignment_model_version ?? null,
+    stakeholderRole: s.stakeholder_role ?? null,
+    editorialFrame: s.editorial_frame ?? null,
   }));
+
+function jsonStringOrNull(v: unknown): string | null {
+  if (v === null || v === undefined) return null;
+  if (typeof v === "string") return v;
+  try {
+    return JSON.stringify(v);
+  } catch {
+    return null;
+  }
+}
 
 /**
  * Persists article ingest payload. When `upsert` is false, duplicate slug throws {@link SlugConflictError}.
@@ -118,6 +130,9 @@ export async function persistArticleIngest(
           seoKeywords: data.seo_keywords ?? null,
           seoOgTitle: data.seo_og_title?.slice(0, 128) ?? null,
           seoOgDescription: data.seo_og_description ?? null,
+          claimMapJson: jsonStringOrNull(data.claim_map),
+          confidenceDashboardJson: jsonStringOrNull(data.confidence_dashboard),
+          perspectiveSpectrumJson: jsonStringOrNull(data.perspective_spectrum),
         },
       });
       await tx.articleSource.deleteMany({ where: { articleId: existing.id } });
@@ -159,6 +174,9 @@ export async function persistArticleIngest(
         seoKeywords: data.seo_keywords ?? null,
         seoOgTitle: data.seo_og_title?.slice(0, 128) ?? null,
         seoOgDescription: data.seo_og_description ?? null,
+        claimMapJson: jsonStringOrNull(data.claim_map),
+        confidenceDashboardJson: jsonStringOrNull(data.confidence_dashboard),
+        perspectiveSpectrumJson: jsonStringOrNull(data.perspective_spectrum),
         sources: {
           create: sourcesPayload,
         },

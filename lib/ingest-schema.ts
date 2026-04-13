@@ -37,6 +37,8 @@ export const articleSourceIngestSchema = z.object({
   // Sypher sends ISO from Python (often without "Z"); accept any parseable instant.
   alignment_assessed_at: z.string().min(4).max(64).optional().nullable(),
   alignment_model_version: z.string().max(64).optional().nullable(),
+  stakeholder_role: z.string().max(64).optional().nullable(),
+  editorial_frame: z.string().max(256).optional().nullable(),
 });
 
 export const categoryIngestSchema = z.union([
@@ -74,6 +76,9 @@ export const articleIngestBodySchema = z
     seo_keywords: z.string().max(5000).optional().nullable(),
     seo_og_title: z.string().max(128).optional().nullable(),
     seo_og_description: z.string().max(5000).optional().nullable(),
+    claim_map: z.unknown().optional().nullable(),
+    confidence_dashboard: z.unknown().optional().nullable(),
+    perspective_spectrum: z.unknown().optional().nullable(),
   });
 
 export type ArticleIngestBody = z.infer<typeof articleIngestBodySchema>;

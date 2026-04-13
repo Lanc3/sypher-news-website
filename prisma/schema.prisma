@@ -130,6 +130,9 @@ model Article {
   seoKeywords                String?           @map("seo_keywords") @db.Text
   seoOgTitle                 String?           @map("seo_og_title") @db.VarChar(128)
   seoOgDescription           String?           @map("seo_og_description") @db.Text
+  claimMapJson               String?           @map("claim_map_json") @db.Text
+  confidenceDashboardJson    String?           @map("confidence_dashboard_json") @db.Text
+  perspectiveSpectrumJson    String?           @map("perspective_spectrum_json") @db.Text
   publishedAt                DateTime?         @map("published_at")
   scheduledFor               DateTime?         @map("scheduled_for")
   createdAt                  DateTime          @default(now()) @map("created_at")
@@ -202,6 +205,8 @@ model ArticleSource {
   alignmentRationale    String?   @map("alignment_rationale") @db.Text
   alignmentAssessedAt   DateTime? @map("alignment_assessed_at")
   alignmentModelVersion String?   @map("alignment_model_version") @db.VarChar(64)
+  stakeholderRole       String?   @map("stakeholder_role") @db.VarChar(64)
+  editorialFrame        String?   @map("editorial_frame") @db.VarChar(256)
   article               Article   @relation(fields: [articleId], references: [id], onDelete: Cascade)
 
   @@index([articleId])

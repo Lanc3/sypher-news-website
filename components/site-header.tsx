@@ -10,6 +10,8 @@ import { SiteContainer } from "@/components/site-container";
 const navLinks = [
   { href: "/", label: "/home" },
   { href: "/news", label: "/news" },
+  { href: "/global-newsroom", label: "/global" },
+  { href: "/feed", label: "/feed" },
   { href: "/about", label: "/about" },
   { href: "/editorial-standards", label: "/standards" },
 ] as const;

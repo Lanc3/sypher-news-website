@@ -10,6 +10,7 @@ datasource db {
 enum UserRole {
   ADMIN
   EDITOR
+  CLIENT
 }
 
 enum AdSlot {
@@ -43,24 +44,26 @@ enum AnalyticsEventType {
 }
 
 model User {
-  id               String            @id @default(cuid())
-  email            String            @unique
-  passwordHash     String            @map("password_hash")
-  role             UserRole          @default(EDITOR)
-  createdAt        DateTime          @default(now()) @map("created_at")
-  updatedAt        DateTime          @updatedAt @map("updated_at")
-  articleRevisions ArticleRevision[] @relation("EditorRevisions")
+  id                  String                   @id @default(cuid())
+  email               String                   @unique
+  passwordHash        String                   @map("password_hash")
+  role                UserRole                 @default(EDITOR)
+  createdAt           DateTime                 @default(now()) @map("created_at")
+  updatedAt           DateTime                 @updatedAt @map("updated_at")
+  articleRevisions    ArticleRevision[]        @relation("EditorRevisions")
+  categoryPreferences UserCategoryPreference[]
 
   @@map("users")
 }
 
 model Category {
-  id          Int      @id @default(autoincrement())
-  slug        String   @unique @db.VarChar(255)
-  name        String   @db.VarChar(512)
-  description String?  @db.Text
-  createdAt   DateTime @default(now()) @map("created_at")
-  topics      Topic[]
+  id              Int                      @id @default(autoincrement())
+  slug            String                   @unique @db.VarChar(255)
+  name            String                   @db.VarChar(512)
+  description     String?                  @db.Text
+  createdAt       DateTime                 @default(now()) @map("created_at")
+  topics          Topic[]
+  userPreferences UserCategoryPreference[]
 
   @@map("categories")
 }
@@ -273,6 +276,20 @@ model NewsletterSubscriber {
   updatedAt        DateTime         @updatedAt @map("updated_at")
 
   @@map("newsletter_subscribers")
+}
+
+model UserCategoryPreference {
+  id         String   @id @default(cuid())
+  userId     String   @map("user_id")
+  categoryId Int      @map("category_id")
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  @@unique([userId, categoryId])
+  @@index([userId])
+  @@index([categoryId])
+  @@map("user_category_preferences")
 }
 
 model AnalyticsEvent {

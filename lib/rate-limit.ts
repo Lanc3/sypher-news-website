@@ -39,3 +39,17 @@ export async function rateLimitAnalytics(identifier: string): Promise<{ ok: bool
   const { success } = await analyticsLimiter.limit(identifier);
   return { ok: success };
 }
+
+const registrationLimiter = upstash
+  ? new Ratelimit({
+      redis: upstash,
+      limiter: Ratelimit.slidingWindow(5, "15 m"),
+      prefix: "sypher:registration",
+    })
+  : null;
+
+export async function rateLimitRegistration(identifier: string): Promise<{ ok: boolean }> {
+  if (!registrationLimiter) return { ok: true };
+  const { success } = await registrationLimiter.limit(identifier);
+  return { ok: success };
+}

@@ -15,6 +15,7 @@ import { ConfidenceDashboard } from "@/components/confidence-dashboard";
 import { ClaimMap } from "@/components/claim-map";
 import { PerspectiveSpectrum } from "@/components/perspective-spectrum";
 import { DisassemblyTabs } from "@/components/disassembly-tabs";
+import { ArticleTTSPlayer } from "@/components/article-tts-player";
 
 /** Avoid caching notFound/redirect decisions while articles are ingested after deploy. */
 export const dynamic = "force-dynamic";
@@ -173,6 +174,10 @@ export default async function ArticlePage({ params }: Props) {
                 ) : (
                   <span className="text-[#bc13fe]">Sypher Desk</span>
                 )}
+              </div>
+
+              <div className="mt-6">
+                <ArticleTTSPlayer title={article.title} bodyMarkdown={article.bodyMarkdown} />
               </div>
 
               <div className="mt-8 space-y-10 sm:mt-10">

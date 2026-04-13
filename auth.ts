@@ -51,21 +51,29 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   callbacks: {
     authorized({ auth, request }) {
       const path = request.nextUrl.pathname;
-      if (!path.startsWith("/admin")) return true;
-      if (path === "/admin/login") return true;
-      return !!auth?.user;
+
+      if (path.startsWith("/admin")) {
+        if (path === "/admin/login") return true;
+        const role = (auth?.user as { role?: string } | undefined)?.role;
+        return role === "ADMIN" || role === "EDITOR";
+      }
+
+      // Feed auth is handled by the feed layout (redirects to /feed/login, not /admin/login)
+      if (path.startsWith("/feed")) return true;
+
+      return true;
     },
     jwt: async ({ token, user }) => {
       if (user) {
         token.id = user.id;
-        token.role = (user as { role?: "ADMIN" | "EDITOR" }).role ?? "EDITOR";
+        token.role = (user as { role?: "ADMIN" | "EDITOR" | "CLIENT" }).role ?? "EDITOR";
       }
       return token;
     },
     session: async ({ session, token }) => {
       if (session.user) {
         session.user.id = token.id as string;
-        session.user.role = (token.role as "ADMIN" | "EDITOR") ?? "EDITOR";
+        session.user.role = (token.role as "ADMIN" | "EDITOR" | "CLIENT") ?? "EDITOR";
       }
       return session;
     },

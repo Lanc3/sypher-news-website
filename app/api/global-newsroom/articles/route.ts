@@ -20,6 +20,8 @@ export async function GET(request: NextRequest) {
     featured: a.featured,
     categorySlug: a.topic?.category?.slug || categorySlug,
     categoryName: a.topic?.category?.name || categorySlug,
+    coverImageUrl: a.coverImageUrl,
+    coverImageThumbnailUrl: a.coverImageThumbnailUrl,
   }));
 
   return NextResponse.json({ articles });

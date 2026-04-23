@@ -33,6 +33,8 @@ type ArticleData = {
   featured: boolean;
   categorySlug: string;
   categoryName: string;
+  coverImageUrl: string | null;
+  coverImageThumbnailUrl: string | null;
 };
 
 export function GlobalNewsroomClient({
@@ -205,6 +207,8 @@ export function GlobalNewsroomClient({
                         : null
                     }
                     featured={a.featured}
+                    coverImageUrl={a.coverImageUrl}
+                    coverImageThumbnailUrl={a.coverImageThumbnailUrl}
                   />
                 </li>
               ))}

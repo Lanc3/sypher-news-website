@@ -9,6 +9,38 @@ function str(v: unknown): string | null {
   return t.length ? t : null;
 }
 
+/** Full-size URL from a string, `{ url }`, or stock-photo style `{ urls: { regular, … } }`. */
+function imageUrlFromMaybeObject(v: unknown): string | null {
+  if (v === undefined || v === null) return null;
+  if (typeof v === "string") return str(v);
+  if (typeof v !== "object") return null;
+  const o = v as UnknownRecord;
+  const direct = str(o.url) ?? str(o.src);
+  if (direct) return direct;
+  const urls = o.urls;
+  if (urls && typeof urls === "object") {
+    const u = urls as UnknownRecord;
+    return str(u.regular) ?? str(u.full) ?? str(u.small) ?? str(u.raw);
+  }
+  return null;
+}
+
+/** Thumbnail URL from the same shapes (explicit fields or `urls.thumb` / `urls.small`). */
+function thumbnailUrlFromMaybeObject(v: unknown): string | null {
+  if (v === undefined || v === null) return null;
+  if (typeof v === "string") return str(v);
+  if (typeof v !== "object") return null;
+  const o = v as UnknownRecord;
+  const direct = str(o.thumbnail_url) ?? str(o.thumb_url) ?? str(o.thumb);
+  if (direct) return direct;
+  const urls = o.urls;
+  if (urls && typeof urls === "object") {
+    const u = urls as UnknownRecord;
+    return str(u.thumb) ?? str(u.small);
+  }
+  return null;
+}
+
 /** Zod ingest expects alignment scores in [0, 1]; Sypher / LLM may send edge values or strings. */
 function unitIntervalOrUndefined(v: unknown): number | undefined {
   let n: number | undefined;
@@ -47,6 +79,27 @@ export function sypherBundleToIngestCandidate(bundle: unknown): unknown | null {
   const title = str(a.title);
   const bodyMarkdown = str(a.body_markdown);
   if (!slug || !title || !bodyMarkdown) return null;
+
+  const bundleRec = bundle as UnknownRecord;
+  const imageObj = a.cover_image ?? a.coverImage ?? a.hero_image ?? a.image;
+
+  const cover_image_url =
+    str(a.cover_image_url) ??
+    str(a.coverImageUrl) ??
+    str(a.image_url) ??
+    str(a.hero_image_url) ??
+    imageUrlFromMaybeObject(imageObj) ??
+    str(bundleRec.cover_image_url) ??
+    str(bundleRec.coverImageUrl);
+
+  const cover_image_thumbnail_url =
+    str(a.cover_image_thumbnail_url) ??
+    str(a.coverImageThumbnailUrl) ??
+    str(a.image_thumbnail_url) ??
+    str(a.thumbnail_url) ??
+    thumbnailUrlFromMaybeObject(imageObj) ??
+    str(bundleRec.cover_image_thumbnail_url) ??
+    str(bundleRec.coverImageThumbnailUrl);
 
   const catObj = b.category && typeof b.category === "object" ? b.category : null;
   const catSlug = str(catObj?.slug) ?? str(a.category_slug);
@@ -131,6 +184,8 @@ export function sypherBundleToIngestCandidate(bundle: unknown): unknown | null {
       a.seo_og_description === null || a.seo_og_description === undefined
         ? null
         : (a.seo_og_description as string | null),
+    cover_image_url,
+    cover_image_thumbnail_url,
     claim_map: a.claim_map ?? null,
     confidence_dashboard: a.confidence_dashboard ?? null,
     perspective_spectrum: a.perspective_spectrum ?? null,

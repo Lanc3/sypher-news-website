@@ -12,6 +12,8 @@ export type HomeArticle = {
   categorySlug: string;
   categoryName: string;
   transparency: number | null;
+  coverImageUrl?: string | null;
+  coverImageThumbnailUrl?: string | null;
 };
 
 export function HomeArticleFilters({ articles }: { articles: HomeArticle[] }) {
@@ -90,6 +92,8 @@ export function HomeArticleFilters({ articles }: { articles: HomeArticle[] }) {
               categoryName={a.categoryName}
               createdAt={a.createdAt}
               transparency={a.transparency}
+              coverImageUrl={a.coverImageUrl}
+              coverImageThumbnailUrl={a.coverImageThumbnailUrl}
             />
           </li>
         ))}

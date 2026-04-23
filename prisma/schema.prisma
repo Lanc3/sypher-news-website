@@ -145,6 +145,8 @@ model Article {
   seoKeywords                String?           @map("seo_keywords") @db.Text
   seoOgTitle                 String?           @map("seo_og_title") @db.VarChar(128)
   seoOgDescription           String?           @map("seo_og_description") @db.Text
+  coverImageUrl              String?           @map("cover_image_url") @db.VarChar(2048)
+  coverImageThumbnailUrl     String?           @map("cover_image_thumbnail_url") @db.VarChar(2048)
   claimMapJson               String?           @map("claim_map_json") @db.Text
   confidenceDashboardJson    String?           @map("confidence_dashboard_json") @db.Text
   perspectiveSpectrumJson    String?           @map("perspective_spectrum_json") @db.Text

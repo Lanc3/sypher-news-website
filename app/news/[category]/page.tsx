@@ -56,6 +56,8 @@ export default async function CategoryArticlesPage({ params }: Props) {
                 categoryName={category.name}
                 createdAt={a.publishedAt || a.createdAt}
                 transparency={a.articleAlignmentConfidence != null ? Math.round(a.articleAlignmentConfidence * 100) : null}
+                coverImageUrl={a.coverImageUrl}
+                coverImageThumbnailUrl={a.coverImageThumbnailUrl}
               />
             </li>
           ))}

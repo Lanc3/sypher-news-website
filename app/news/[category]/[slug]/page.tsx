@@ -38,6 +38,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const cat = article.topic?.category?.slug;
   const base = siteUrl();
   const path = cat ? `/news/${cat}/${article.slug}` : `/news/_/`;
+  const ogImage = article.coverImageUrl?.trim() || article.coverImageThumbnailUrl?.trim() || null;
   return {
     metadataBase: new URL(base),
     title,
@@ -51,11 +52,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       publishedTime: (article.publishedAt || article.createdAt).toISOString(),
       section: article.topic?.category?.name ?? undefined,
       url: path,
+      ...(ogImage ? { images: [{ url: ogImage }] } : {}),
     },
     twitter: {
       card: "summary_large_image",
       title: ogTitle,
       description: ogDesc,
+      ...(ogImage ? { images: [ogImage] } : {}),
     },
   };
 }
@@ -79,6 +82,7 @@ export default async function ArticlePage({ params }: Props) {
       ? Math.round(article.articleAlignmentConfidence * 100)
       : null;
   const articleUrl = `${siteUrl()}${path}`;
+  const heroImageSrc = article.coverImageUrl?.trim() || article.coverImageThumbnailUrl?.trim() || null;
 
   function safeJson<T>(raw: string | null | undefined): T | null {
     if (!raw) return null;
@@ -125,6 +129,7 @@ export default async function ArticlePage({ params }: Props) {
         datePublished={(article.publishedAt || article.createdAt).toISOString()}
         dateModified={article.updatedAt.toISOString()}
         section={article.topic.category.name}
+        imageUrl={heroImageSrc}
       />
       <PageViewTracker path={path} articleId={article.id} />
       <main id="main-content" className="flex-1 py-8 sm:py-10 lg:py-12">
@@ -169,6 +174,19 @@ export default async function ArticlePage({ params }: Props) {
                   Aaron Keating
                 </Link>
               </div>
+
+              {heroImageSrc ? (
+                <figure className="mt-6 overflow-hidden rounded-lg border border-[#00e8ff]/15 bg-black">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={heroImageSrc}
+                    alt=""
+                    loading="eager"
+                    decoding="async"
+                    className="aspect-[16/9] h-auto w-full object-cover"
+                  />
+                </figure>
+              ) : null}
 
               <div className="mt-6">
                 <ArticleTTSPlayer title={article.title} bodyMarkdown={article.bodyMarkdown} />

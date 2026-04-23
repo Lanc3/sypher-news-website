@@ -7,6 +7,7 @@ type ArticleJsonLdProps = {
   datePublished: string;
   dateModified?: string;
   section?: string | null;
+  imageUrl?: string | null;
 };
 
 export function ArticleJsonLd({
@@ -16,6 +17,7 @@ export function ArticleJsonLd({
   datePublished,
   dateModified,
   section,
+  imageUrl,
 }: ArticleJsonLdProps) {
   const base = siteUrl();
   const url = `${base}${urlPath}`;
@@ -29,6 +31,7 @@ export function ArticleJsonLd({
         datePublished,
         dateModified: dateModified ?? datePublished,
         articleSection: section ?? undefined,
+        image: imageUrl ? [imageUrl] : undefined,
         url,
         mainEntityOfPage: { "@type": "WebPage", "@id": url },
         author: {

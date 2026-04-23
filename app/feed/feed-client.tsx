@@ -20,6 +20,8 @@ type FeedArticle = {
   createdAt: Date;
   articleAlignmentConfidence: number | null;
   featured: boolean;
+  coverImageUrl: string | null;
+  coverImageThumbnailUrl: string | null;
   topic: { category: { slug: string; name: string } };
 };
 
@@ -125,6 +127,8 @@ export function FeedClient({
                       : null
                   }
                   featured={a.featured}
+                  coverImageUrl={a.coverImageUrl}
+                  coverImageThumbnailUrl={a.coverImageThumbnailUrl}
                 />
               </li>
             ))}

@@ -19,6 +19,8 @@ export function RelatedArticles({ articles }: { articles: PublicArticle[] }) {
             transparency={
               article.articleAlignmentConfidence != null ? Math.round(article.articleAlignmentConfidence * 100) : null
             }
+            coverImageUrl={article.coverImageUrl}
+            coverImageThumbnailUrl={article.coverImageThumbnailUrl}
           />
         ))}
       </div>

@@ -38,6 +38,8 @@ export default async function HomePage() {
       categoryName: a.topic!.category!.name,
       transparency:
         a.articleAlignmentConfidence != null ? Math.round(a.articleAlignmentConfidence * 100) : null,
+      coverImageUrl: a.coverImageUrl,
+      coverImageThumbnailUrl: a.coverImageThumbnailUrl,
     }));
 
   return (
@@ -65,6 +67,8 @@ export default async function HomePage() {
                       ? Math.round(article.articleAlignmentConfidence * 100)
                       : null
                   }
+                  coverImageUrl={article.coverImageUrl}
+                  coverImageThumbnailUrl={article.coverImageThumbnailUrl}
                   featured
                 />
               ))}
@@ -108,6 +112,8 @@ export default async function HomePage() {
                             ? Math.round(article.articleAlignmentConfidence * 100)
                             : null
                         }
+                        coverImageUrl={article.coverImageUrl}
+                        coverImageThumbnailUrl={article.coverImageThumbnailUrl}
                       />
                     ))}
                   </div>

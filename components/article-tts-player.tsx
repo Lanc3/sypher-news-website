@@ -5,10 +5,17 @@ import { Pause, Play, Square, Volume2 } from "lucide-react";
 
 function stripMarkdownToPlainText(md: string): string {
   let text = md;
+  // Drop all hyperlinks (anchor text and URLs omitted from speech)
+  text = text.replace(/<a\b[^>]*>[\s\S]*?<\/a>/gi, " ");
   // Remove images
-  text = text.replace(/!\[.*?\]\(.*?\)/g, "");
-  // Convert links to just their text (never read URLs)
-  text = text.replace(/\[([^\]]*)\]\([^)]*\)/g, "$1");
+  text = text.replace(/!\[.*?\]\(.*?\)/g, " ");
+  // Inline markdown links [label](url)
+  text = text.replace(/\[([^\]]*)\]\([^)]*\)/g, " ");
+  // Reference-style links [label][ref]
+  text = text.replace(/\[([^\]]*)\]\s*\[[^\]]+\]/g, " ");
+  // Angle-bracket autolinks
+  text = text.replace(/<https?:\/\/[^>\s]+>/gi, " ");
+  text = text.replace(/<mailto:[^>\s]+>/gi, " ");
   // Remove fenced code blocks
   text = text.replace(/```[\s\S]*?```/g, "");
   // Remove inline code
@@ -26,8 +33,13 @@ function stripMarkdownToPlainText(md: string): string {
   text = text.replace(/^[-*_]{3,}\s*$/gm, "");
   // Remove HTML tags
   text = text.replace(/<[^>]+>/g, "");
-  // Remove reference-style links
+  // GFM footnote callouts in prose
+  text = text.replace(/\[\^[^\]]+\]/g, " ");
+  // Remove reference-style link definitions
   text = text.replace(/^\[[^\]]*\]:\s*.*$/gm, "");
+  // Bare URLs in the markdown (never read aloud)
+  text = text.replace(/\bhttps?:\/\/[^\s\]<>"']+/gi, " ");
+  text = text.replace(/\bwww\.[^\s\]<>"']+/gi, " ");
   // Collapse multiple newlines / whitespace
   text = text.replace(/\n{2,}/g, ". ");
   text = text.replace(/\n/g, " ");

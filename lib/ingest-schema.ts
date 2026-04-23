@@ -1,21 +1,27 @@
 import { z } from "zod";
 
-const httpUrl = z
-  .string()
-  .min(1)
-  .max(4096)
-  .superRefine((val, ctx) => {
-    let parsed: URL;
-    try {
-      parsed = new URL(val);
-    } catch {
-      ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Invalid URL" });
-      return;
-    }
-    if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
-      ctx.addIssue({ code: z.ZodIssueCode.custom, message: "URL must be http(s)" });
-    }
-  });
+function httpUrlSchema(maxLen: number) {
+  return z
+    .string()
+    .min(1)
+    .max(maxLen)
+    .superRefine((val, ctx) => {
+      let parsed: URL;
+      try {
+        parsed = new URL(val);
+      } catch {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Invalid URL" });
+        return;
+      }
+      if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, message: "URL must be http(s)" });
+      }
+    });
+}
+
+const httpUrl = httpUrlSchema(4096);
+/** Cap cover image URLs at 2048 to match DB column width. */
+const coverImageHttpUrl = httpUrlSchema(2048);
 
 export const articleSourceIngestSchema = z.object({
   url: httpUrl,
@@ -76,6 +82,8 @@ export const articleIngestBodySchema = z
     seo_keywords: z.string().max(5000).optional().nullable(),
     seo_og_title: z.string().max(128).optional().nullable(),
     seo_og_description: z.string().max(5000).optional().nullable(),
+    cover_image_url: coverImageHttpUrl.optional().nullable(),
+    cover_image_thumbnail_url: coverImageHttpUrl.optional().nullable(),
     claim_map: z.unknown().optional().nullable(),
     confidence_dashboard: z.unknown().optional().nullable(),
     perspective_spectrum: z.unknown().optional().nullable(),

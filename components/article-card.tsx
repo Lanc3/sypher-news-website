@@ -8,12 +8,38 @@ type ArticleCardProps = {
   createdAt?: string | Date | null;
   transparency?: number | null;
   featured?: boolean;
+  coverImageUrl?: string | null;
+  coverImageThumbnailUrl?: string | null;
 };
 
-export function ArticleCard({ href, title, summary, categoryName, createdAt, transparency, featured = false }: ArticleCardProps) {
+export function ArticleCard({
+  href,
+  title,
+  summary,
+  categoryName,
+  createdAt,
+  transparency,
+  featured = false,
+  coverImageUrl,
+  coverImageThumbnailUrl,
+}: ArticleCardProps) {
   const dateValue = createdAt ? new Date(createdAt) : null;
+  // Prefer the thumbnail for cards; fall back to the full-size URL.
+  const imageSrc = coverImageThumbnailUrl?.trim() || coverImageUrl?.trim() || null;
   return (
     <Link href={href} className="panel panel-glow flex h-full flex-col p-4 sm:p-5">
+      {imageSrc ? (
+        <div className="-mx-4 -mt-4 mb-4 overflow-hidden rounded-t-lg border-b border-[#00e8ff]/15 bg-black sm:-mx-5 sm:-mt-5">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={imageSrc}
+            alt=""
+            loading={featured ? "eager" : "lazy"}
+            decoding="async"
+            className="aspect-[16/9] h-auto w-full object-cover"
+          />
+        </div>
+      ) : null}
       <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] font-mono text-[#707070] sm:text-xs">
         {categoryName ? <span className="font-medium text-[#bc13fe]/90">{categoryName}</span> : null}
         {dateValue ? (

@@ -13,6 +13,7 @@ const navLinks = [
   { href: "/global-newsroom", label: "/global" },
   { href: "/feed", label: "/feed" },
   { href: "/about", label: "/about" },
+  { href: "/methodology", label: "/methodology" },
   { href: "/editorial-standards", label: "/standards" },
 ] as const;
 

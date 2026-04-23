@@ -5,25 +5,40 @@ type ArticleJsonLdProps = {
   description: string;
   urlPath: string;
   datePublished: string;
+  dateModified?: string;
   section?: string | null;
 };
 
-export function ArticleJsonLd({ title, description, urlPath, datePublished, section }: ArticleJsonLdProps) {
+export function ArticleJsonLd({
+  title,
+  description,
+  urlPath,
+  datePublished,
+  dateModified,
+  section,
+}: ArticleJsonLdProps) {
   const base = siteUrl();
   const url = `${base}${urlPath}`;
   const graph = {
     "@context": "https://schema.org",
     "@graph": [
       {
-        "@type": "NewsArticle",
+        "@type": "AnalysisNewsArticle",
         headline: title,
         description,
         datePublished,
+        dateModified: dateModified ?? datePublished,
         articleSection: section ?? undefined,
         url,
         mainEntityOfPage: { "@type": "WebPage", "@id": url },
+        author: {
+          "@type": "Person",
+          name: "Aaron Keating",
+          url: `${base}/about`,
+          jobTitle: "Editor",
+        },
         publisher: {
-          "@type": "Organization",
+          "@type": "NewsMediaOrganization",
           name: "Sypher News",
           url: base,
         },

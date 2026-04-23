@@ -18,11 +18,13 @@ const mono = IBM_Plex_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "Sypher News",
+    default: "Sypher News — Media analysis, not another news site",
     template: "%s · Sypher News",
   },
-  description: "Sypher News uses AI-driven deep research to generate articles, categories, and topics from current global news as part of a fully automated news system.",
-  keywords: ["news analysis", "bias analysis", "news transparency", "media criticism", "Sypher News"],
+  description:
+    "We disassemble mainstream news coverage: how outlets framed the same story, what they emphasized, and whose voices got left out. Every claim sourced, every frame surfaced.",
+  keywords: ["media analysis", "news framing", "news transparency", "source analysis", "Sypher News"],
+  authors: [{ name: "Aaron Keating", url: "/about" }],
 };
 
 async function loadAdPlacements() {
@@ -45,10 +47,29 @@ export default async function RootLayout({
   return (
     <html lang="en" className={`${mono.variable} h-full`}>
       <head>
+        <link rel="author" href="/about" />
         <script
           async
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9029459573777442"
           crossOrigin="anonymous"
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "NewsMediaOrganization",
+              name: "Sypher News",
+              url: "https://www.sypher-news.com",
+              logo: "https://www.sypher-news.com/logo.png",
+              founder: { "@type": "Person", name: "Aaron Keating" },
+              foundingDate: "2025",
+              editorialPolicy: "https://www.sypher-news.com/methodology",
+              diversityStaffingReport: "https://www.sypher-news.com/about",
+              ethicsPolicy: "https://www.sypher-news.com/methodology",
+              masthead: "https://www.sypher-news.com/about",
+            }),
+          }}
         />
       </head>
       <body className={`${mono.className} relative flex min-h-dvh flex-col bg-[#070a12] text-[#e0e0e0] antialiased`}>

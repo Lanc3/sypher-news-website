@@ -124,6 +124,7 @@ export default async function ArticlePage({ params }: Props) {
         description={description}
         urlPath={path}
         datePublished={(article.publishedAt || article.createdAt).toISOString()}
+        dateModified={article.updatedAt.toISOString()}
         section={article.topic.category.name}
       />
       <PageViewTracker path={path} articleId={article.id} />
@@ -160,19 +161,26 @@ export default async function ArticlePage({ params }: Props) {
                 ) : null}
               </div>
               <div className="mt-4 flex flex-wrap items-center gap-2 text-sm text-[#a7a7a7]">
-                <span className="font-mono uppercase tracking-[0.2em] text-[#666]">Byline</span>
+                <span className="font-mono uppercase tracking-[0.2em] text-[#666]">By</span>
                 {authorLinks.length > 0 ? (
                   authorLinks.map((link) => (
                     <Link
                       key={link.authorId}
                       href={`/authors/${link.author.slug}`}
+                      rel="author"
                       className="text-[#bc13fe] underline decoration-[#bc13fe]/40 underline-offset-4 hover:decoration-[#bc13fe]"
                     >
                       {link.author.name}
                     </Link>
                   ))
                 ) : (
-                  <span className="text-[#bc13fe]">Sypher Desk</span>
+                  <Link
+                    href="/about"
+                    rel="author"
+                    className="text-[#bc13fe] underline decoration-[#bc13fe]/40 underline-offset-4 hover:decoration-[#bc13fe]"
+                  >
+                    Aaron Keating
+                  </Link>
                 )}
               </div>
 
@@ -242,6 +250,19 @@ export default async function ArticlePage({ params }: Props) {
                 />
 
                 <ShareActions url={articleUrl} title={article.title} />
+
+                <aside className="panel rounded-lg border border-[#00e8ff]/15 bg-black/40 px-5 py-5 sm:px-6 sm:py-6">
+                  <p className="font-mono text-[10px] font-medium uppercase tracking-[0.2em] text-[#bc13fe] sm:text-xs">About the author</p>
+                  <p className="mt-3 text-sm leading-relaxed text-[#d7d7d7]">
+                    <strong className="text-[#e8e8e8]">Aaron Keating</strong> is the editor of Sypher News. He
+                    writes about how mainstream outlets cover — and mis-cover — crypto, AI, and tech policy.
+                  </p>
+                  <p className="mt-2 text-sm">
+                    <Link href="/about" className="text-[#bc13fe] underline decoration-[#bc13fe]/40 underline-offset-4 hover:decoration-[#bc13fe]">
+                      More about Aaron →
+                    </Link>
+                  </p>
+                </aside>
 
                 <InArticleAdSlot />
 

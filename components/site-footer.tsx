@@ -4,9 +4,10 @@ import { SiteContainer } from "@/components/site-container";
 
 const footerLinks = [
   { href: "/about", label: "About" },
+  { href: "/methodology", label: "Methodology" },
+  { href: "/corrections", label: "Corrections" },
   { href: "/contact", label: "Contact" },
   { href: "/editorial-standards", label: "Editorial standards" },
-  { href: "/corrections", label: "Corrections" },
   { href: "/privacy", label: "Privacy" },
   { href: "/terms", label: "Terms" },
 ] as const;
@@ -19,7 +20,10 @@ export function SiteFooter() {
           <div>
             <p className="font-mono text-sm font-semibold tracking-wide text-[#00e8ff]">Sypher News</p>
             <p className="mt-3 max-w-md text-sm leading-relaxed text-[#a8a8a8] sm:text-[0.9375rem]">
-              AI-generated articles, categories, and topics built through deep research on current news worldwide. The mission is a fully automated news system.
+              Media analysis, not another news site. We disassemble mainstream coverage to surface the facts, the frames, and the voices that got left out.
+            </p>
+            <p className="mt-4 max-w-md text-xs leading-relaxed text-[#666]">
+              Sypher News publishes media analysis. Facts cited in our articles are sourced from external outlets; disputes with the original reporting should be directed to those outlets.
             </p>
           </div>
           <div>
@@ -51,7 +55,7 @@ export function SiteFooter() {
           </div>
         </div>
         <p className="mt-10 border-t border-[#1a1a1a] pt-6 text-center text-xs text-[#555] sm:mt-12">
-          © {new Date().getFullYear()} Sypher News
+          © 2025–{new Date().getFullYear()} Sypher News. Published by Aaron Keating.
         </p>
       </SiteContainer>
     </footer>

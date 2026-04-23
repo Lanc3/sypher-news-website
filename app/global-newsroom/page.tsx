@@ -4,7 +4,6 @@ import { SiteContainer } from "@/components/site-container";
 import { GlobalNewsroomClient } from "@/components/global-newsroom-client";
 import { SLUG_TO_COUNTRY } from "@/lib/countries";
 
-export const dynamic = "force-dynamic";
 export const revalidate = 120;
 
 export const metadata: Metadata = {

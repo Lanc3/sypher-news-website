@@ -25,41 +25,31 @@ function revalidateArticlePaths(categorySlug: string, articleSlug: string) {
   revalidatePath("/admin/analytics");
 }
 
-function normalizeSlug(value: string) {
-  return value
-    .trim()
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "")
-    .slice(0, 255);
-}
+const SITE_AUTHOR = {
+  name: "Aaron Keating",
+  slug: "aaron-keating",
+  title: "Editor, Sypher News",
+  bio: "Irish software engineer with 18 years in technology. Built newsroom and medical publishing platforms, including the Mindo app for Android and iOS. Focused on cutting fluff and bias from mainstream coverage.",
+} as const;
 
-async function upsertPrimaryAuthor(input: {
-  articleId: number;
-  authorName?: string | null;
-  authorSlug?: string | null;
-  authorTitle?: string | null;
-  authorBio?: string | null;
-}) {
-  const authorName = input.authorName?.trim();
-  const authorSlug = normalizeSlug(input.authorSlug?.trim() || authorName || "");
+async function upsertPrimaryAuthor(input: { articleId: number }) {
+  const authorName = SITE_AUTHOR.name;
+  const authorSlug = SITE_AUTHOR.slug;
 
   await prisma.articleAuthor.deleteMany({ where: { articleId: input.articleId } });
-
-  if (!authorName || !authorSlug) return;
 
   const author = await prisma.author.upsert({
     where: { slug: authorSlug },
     create: {
       slug: authorSlug,
       name: authorName,
-      title: input.authorTitle?.trim() || null,
-      bio: input.authorBio?.trim() || null,
+      title: SITE_AUTHOR.title,
+      bio: SITE_AUTHOR.bio,
     },
     update: {
       name: authorName,
-      title: input.authorTitle?.trim() || null,
-      bio: input.authorBio?.trim() || null,
+      title: SITE_AUTHOR.title,
+      bio: SITE_AUTHOR.bio,
     },
   });
 
@@ -278,13 +268,7 @@ export async function saveArticleAction(raw: z.infer<typeof articleSaveSchema>) 
     }
   });
 
-  await upsertPrimaryAuthor({
-    articleId: d.id,
-    authorName: d.authorName ?? null,
-    authorSlug: d.authorSlug ?? null,
-    authorTitle: d.authorTitle ?? null,
-    authorBio: d.authorBio ?? null,
-  });
+  await upsertPrimaryAuthor({ articleId: d.id });
 
   revalidateArticlePaths(existing.topic.category.slug, nextSlug);
   if (existing.slug !== nextSlug) {
@@ -372,13 +356,7 @@ export async function createArticleAdminAction(raw: z.infer<typeof articleCreate
   }
 
   if (articleId) {
-    await upsertPrimaryAuthor({
-      articleId,
-      authorName: data.authorName ?? null,
-      authorSlug: data.authorSlug ?? null,
-      authorTitle: data.authorTitle ?? null,
-      authorBio: data.authorBio ?? null,
-    });
+    await upsertPrimaryAuthor({ articleId });
   }
 
   revalidatePath("/");

@@ -78,7 +78,6 @@ export default async function ArticlePage({ params }: Props) {
     article.articleAlignmentConfidence != null
       ? Math.round(article.articleAlignmentConfidence * 100)
       : null;
-  const authorLinks = article.authorLinks;
   const articleUrl = `${siteUrl()}${path}`;
 
   function safeJson<T>(raw: string | null | undefined): T | null {
@@ -162,26 +161,13 @@ export default async function ArticlePage({ params }: Props) {
               </div>
               <div className="mt-4 flex flex-wrap items-center gap-2 text-sm text-[#a7a7a7]">
                 <span className="font-mono uppercase tracking-[0.2em] text-[#666]">By</span>
-                {authorLinks.length > 0 ? (
-                  authorLinks.map((link) => (
-                    <Link
-                      key={link.authorId}
-                      href={`/authors/${link.author.slug}`}
-                      rel="author"
-                      className="text-[#bc13fe] underline decoration-[#bc13fe]/40 underline-offset-4 hover:decoration-[#bc13fe]"
-                    >
-                      {link.author.name}
-                    </Link>
-                  ))
-                ) : (
-                  <Link
-                    href="/about"
-                    rel="author"
-                    className="text-[#bc13fe] underline decoration-[#bc13fe]/40 underline-offset-4 hover:decoration-[#bc13fe]"
-                  >
-                    Aaron Keating
-                  </Link>
-                )}
+                <Link
+                  href="/about"
+                  rel="author"
+                  className="text-[#bc13fe] underline decoration-[#bc13fe]/40 underline-offset-4 hover:decoration-[#bc13fe]"
+                >
+                  Aaron Keating
+                </Link>
               </div>
 
               <div className="mt-6">

@@ -108,3 +108,23 @@ body::before {
       0 0 24px rgba(var(--neon-rgb), 0.06);
   }
 }
+
+/* Client route transitions: pair with `app/template.tsx` (subtle; drop if it feels busy with loading.tsx) */
+@keyframes routeContentEnter {
+  from {
+    opacity: 0.94;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.route-content-enter {
+  animation: routeContentEnter 160ms ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .route-content-enter {
+    animation: none;
+  }
+}

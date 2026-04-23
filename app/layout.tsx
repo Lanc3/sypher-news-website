@@ -5,6 +5,7 @@ import { Providers } from "@/app/providers";
 import { prisma } from "@/lib/prisma";
 import { AdProviderClient } from "@/components/ad-provider";
 import { CrtOverlay } from "@/components/crt-overlay";
+import { NavigationProgress } from "@/components/navigation-progress";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { NewsletterPopup } from "@/components/newsletter-popup";
@@ -25,6 +26,11 @@ export const metadata: Metadata = {
     "We disassemble mainstream news coverage: how outlets framed the same story, what they emphasized, and whose voices got left out. Every claim sourced, every frame surfaced.",
   keywords: ["media analysis", "news framing", "news transparency", "source analysis", "Sypher News"],
   authors: [{ name: "Aaron Keating", url: "/about" }],
+  icons: {
+    icon: "/sypher-logo.png",
+    shortcut: "/sypher-logo.png",
+    apple: "/sypher-logo.png",
+  },
 };
 
 async function loadAdPlacements() {
@@ -45,7 +51,7 @@ export default async function RootLayout({
   const placements = await loadAdPlacements();
 
   return (
-    <html lang="en" className={`${mono.variable} h-full`}>
+    <html lang="en" data-scroll-behavior="smooth" className={`${mono.variable} h-full`}>
       <head>
         <link rel="author" href="/about" />
         <script
@@ -61,7 +67,7 @@ export default async function RootLayout({
               "@type": "NewsMediaOrganization",
               name: "Sypher News",
               url: "https://www.sypher-news.com",
-              logo: "https://www.sypher-news.com/logo.png",
+              logo: "https://www.sypher-news.com/sypher-logo.png",
               founder: { "@type": "Person", name: "Aaron Keating" },
               foundingDate: "2025",
               editorialPolicy: "https://www.sypher-news.com/methodology",
@@ -75,6 +81,7 @@ export default async function RootLayout({
       <body className={`${mono.className} relative flex min-h-dvh flex-col bg-[#070a12] text-[#e0e0e0] antialiased`}>
         <Providers>
           <AdProviderClient placements={placements}>
+            <NavigationProgress />
             <CrtOverlay />
             <a
               href="#content-start"

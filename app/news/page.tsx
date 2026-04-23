@@ -5,7 +5,6 @@ import { prisma } from "@/lib/prisma";
 import { SiteContainer } from "@/components/site-container";
 import { COUNTRY_CATEGORY_SLUGS } from "@/lib/category-utils";
 
-export const dynamic = "force-dynamic";
 export const revalidate = 60;
 
 export const metadata: Metadata = {

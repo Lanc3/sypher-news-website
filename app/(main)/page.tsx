@@ -7,12 +7,12 @@ import { HomeArticleFilters, type HomeArticle } from "@/components/home-article-
 import { SiteContainer } from "@/components/site-container";
 import { listHomepageSections } from "@/lib/article-public";
 
-export const dynamic = "force-dynamic";
 export const revalidate = 60;
 
 export const metadata: Metadata = {
   title: "Disassemble the headline",
-  description: "Sypher News uses AI-driven deep research to generate articles, categories, and topics from current global news as part of a fully automated news system.",
+  description:
+    "Sypher News uses AI-driven deep research to generate articles, categories, and topics from current global news as part of a fully automated news system.",
   openGraph: {
     title: "Sypher News",
     description: "AI-generated deep-research coverage built toward a fully automated news system.",
@@ -61,7 +61,9 @@ export default async function HomePage() {
                   categoryName={article.topic.category.name}
                   createdAt={article.publishedAt || article.createdAt}
                   transparency={
-                    article.articleAlignmentConfidence != null ? Math.round(article.articleAlignmentConfidence * 100) : null
+                    article.articleAlignmentConfidence != null
+                      ? Math.round(article.articleAlignmentConfidence * 100)
+                      : null
                   }
                   featured
                 />
@@ -81,7 +83,9 @@ export default async function HomePage() {
                 <div key={group.category.id} className="panel p-4 sm:p-5">
                   <div className="mb-4 flex items-center justify-between gap-4">
                     <div>
-                      <p className="font-mono text-lg text-[#bc13fe]">{group.category.name}</p>
+                      <p className="text-magenta-glow font-mono text-lg font-bold tracking-tight text-[#bc13fe] sm:text-xl">
+                        {group.category.name}
+                      </p>
                       {group.category.description ? (
                         <p className="mt-1 text-sm text-[#777]">{group.category.description}</p>
                       ) : null}
@@ -100,7 +104,9 @@ export default async function HomePage() {
                         categoryName={article.topic.category.name}
                         createdAt={article.publishedAt || article.createdAt}
                         transparency={
-                          article.articleAlignmentConfidence != null ? Math.round(article.articleAlignmentConfidence * 100) : null
+                          article.articleAlignmentConfidence != null
+                            ? Math.round(article.articleAlignmentConfidence * 100)
+                            : null
                         }
                       />
                     ))}

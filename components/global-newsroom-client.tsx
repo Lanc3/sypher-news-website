@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo, useState, useTransition } from "react";
+import { useCallback, useEffect, useMemo, useState, useTransition } from "react";
 import dynamic from "next/dynamic";
 import { ArticleCard } from "@/components/article-card";
 import { CountryListPanel } from "@/components/country-list-panel";
@@ -45,6 +45,7 @@ export function GlobalNewsroomClient({
   const [articles, setArticles] = useState<ArticleData[]>([]);
   const [isFetching, startFetch] = useTransition();
   const [selectedCountryName, setSelectedCountryName] = useState<string | null>(null);
+  const [scrollToArticlesOnSelect, setScrollToArticlesOnSelect] = useState(false);
 
   const countryCategoryMap = useMemo(() => {
     const map = new Map<string, CategoryData>();
@@ -104,6 +105,29 @@ export function GlobalNewsroomClient({
     [countryCategoryMap],
   );
 
+  const handleGlobeCountrySelect = useCallback(
+    (code: string) => {
+      setScrollToArticlesOnSelect(true);
+      handleCountrySelect(code);
+    },
+    [handleCountrySelect],
+  );
+
+  useEffect(() => {
+    if (!scrollToArticlesOnSelect || !selectedCode) return;
+
+    // Double rAF: section just mounted/updated; `scroll-margin-top` on the section
+    // (below) offsets for the sticky site header; tweak that class if alignment feels a pixel off.
+    const id = requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        const section = document.getElementById("country-articles");
+        section?.scrollIntoView({ behavior: "smooth", block: "start" });
+        setScrollToArticlesOnSelect(false);
+      });
+    });
+    return () => cancelAnimationFrame(id);
+  }, [scrollToArticlesOnSelect, selectedCode]);
+
   return (
     <div className="space-y-6">
       <header className="panel px-5 py-5 sm:px-6 sm:py-6">
@@ -127,7 +151,7 @@ export function GlobalNewsroomClient({
             <GlobeView
               countriesWithArticles={countriesWithArticles}
               selectedCode={selectedCode}
-              onCountryClick={handleCountrySelect}
+              onCountryClick={handleGlobeCountrySelect}
               onCountryHover={setHoveredName}
             />
           </div>
@@ -143,7 +167,10 @@ export function GlobalNewsroomClient({
       </div>
 
       {selectedCode && (
-        <section className="space-y-4">
+        <section
+          id="country-articles"
+          className="scroll-mt-12 space-y-4 sm:scroll-mt-14"
+        >
           <div className="flex items-center gap-3">
             <h2 className="font-mono text-lg font-semibold text-[#00e8ff] sm:text-xl">
               {selectedCountryName}

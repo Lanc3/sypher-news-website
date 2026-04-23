@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
-import { Menu, Search, Terminal, X } from "lucide-react";
+import { Menu, Search, X } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { HeaderAdSlot } from "@/components/ad-provider";
 import { SiteContainer } from "@/components/site-container";
@@ -12,9 +13,6 @@ const navLinks = [
   { href: "/news", label: "/news" },
   { href: "/global-newsroom", label: "/global" },
   { href: "/feed", label: "/feed" },
-  { href: "/about", label: "/about" },
-  { href: "/methodology", label: "/methodology" },
-  { href: "/editorial-standards", label: "/standards" },
 ] as const;
 
 export function SiteHeader() {
@@ -81,9 +79,13 @@ export function SiteHeader() {
           onClick={() => setOpen(false)}
           className="group flex min-h-11 min-w-0 shrink items-center gap-2 font-mono text-base font-semibold tracking-tight text-[#00e8ff] sm:text-lg"
         >
-          <Terminal
-            className="size-5 shrink-0 motion-reduce:transition-none transition group-hover:drop-shadow-[0_0_8px_#00e8ff]"
-            aria-hidden
+          <Image
+            src="/sypher-logo.png"
+            alt="Sypher News logo"
+            width={28}
+            height={28}
+            className="size-7 rounded-sm object-cover motion-reduce:transition-none transition group-hover:drop-shadow-[0_0_8px_#00e8ff]"
+            priority
           />
           <span className="truncate group-hover:drop-shadow-[0_0_10px_rgba(0,232,255,0.45)]">SYPHER_NEWS</span>
         </Link>

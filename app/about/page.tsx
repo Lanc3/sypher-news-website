@@ -4,36 +4,37 @@ import { InfoPage, InfoSection } from "@/components/info-page";
 export const metadata: Metadata = {
   title: "About",
   description:
-    "Why Sypher News exists, who runs it, and how the analysis is produced. We are a small, independent media-analysis publication — not another news aggregator.",
+    "Meet Aaron Keating, the Irish software engineer behind Sypher News, and learn why this publication focuses on clear, bias-aware reporting.",
 };
 
 export default function AboutPage() {
   return (
     <InfoPage
       eyebrow="About"
-      title="Why this site exists, and who is behind it"
-      intro="Sypher News is a small, independent media-analysis publication. We do not compete with Reuters, the AP, or CoinTelegraph on being first with the news — they are better resourced and closer to the source than we will ever be. What we do instead is read across those outlets after they publish and answer a different question: how did each of them choose to tell this story?"
+      title="Who I am and why Sypher News exists"
+      intro="I created Sypher News to cut through the fluff, spin, and bias that dominate too many mainstream headlines. This is not a race to be first. It is a commitment to making coverage clearer, more transparent, and more useful."
     >
       <InfoSection title="What Sypher News actually is">
         <p>
-          Every article on this site disassembles a recent news event into three layers: the factual core that most
-          outlets agree on, the framing differences between the outlets that covered it, and the stakeholder
-          perspectives the coverage omitted. We publish the research dossier alongside every article so readers can
-          check our work.
+          Every article on this site breaks a story into three layers: the shared factual core, the framing
+          differences between outlets, and the perspectives that were left out. I publish the supporting research so
+          readers can inspect how each piece was built.
         </p>
       </InfoSection>
 
       <InfoSection title="Who runs Sypher News">
         <p>
-          Sypher News is written and edited by <strong>Aaron Keating</strong>, an independent business owner and
-          critical reader based in Carlow, Ireland. Aaron is not a career journalist; he is a long-time consumer of
-          news who became frustrated with how the same story would read like three different events depending on which
-          outlet he opened first. Sypher News is the project that grew out of that frustration.
+          Sypher News is written and edited by <strong>Aaron Keating</strong>. I am Irish and have worked as a software
+          engineer for 18 years, with deep expertise in technology and AI systems.
         </p>
         <p>
-          Editorial decisions — what to cover, which framings to surface, which voices to call missing — are made by
-          Aaron. The site does not take advertising from political campaigns, crypto tokens, or AI companies that we
-          cover. When we are wrong, corrections appear inline with the original article, dated and signed.
+          Over that time, I have built large-scale news software, including platforms for medical publishing and the
+          Mindo mobile app for Android and iOS while working with Medical Independent. I have spent years building
+          systems around newsroom workflows, publishing standards, and article quality controls.
+        </p>
+        <p>
+          Editorial decisions are made by me, and accountability sits with me. If something is wrong, corrections are
+          added directly to the article with clear timestamps.
         </p>
         <p>
           Contact:{" "}
@@ -48,14 +49,13 @@ export default function AboutPage() {
 
       <InfoSection title="How the analysis is produced">
         <p>
-          Sypher News uses a local AI research pipeline to do the heavy lifting of gathering, clustering, and
-          extracting claims from dozens of sources per story. The pipeline runs a locally hosted open-weight model on
-          hardware Aaron owns — no third-party API sees the research stream, and no outside party influences which
-          angles get surfaced.
+          Sypher News uses an AI-assisted research pipeline to gather sources, cluster claims, and map coverage
+          differences. The goal is not to replace editorial judgment, but to make the research process faster and more
+          consistent.
         </p>
         <p>
-          Every article passes through four automated stages (researcher, analyst, writer, critic) and then a human
-          editorial check before it is published. A longer description lives on the{" "}
+          Every article passes through structured stages and then a final editorial review before publication. A longer
+          description lives on the{" "}
           <a
             href="/methodology"
             className="text-[#bc13fe] underline decoration-[#bc13fe]/40 underline-offset-4 hover:decoration-[#bc13fe]"
@@ -68,17 +68,15 @@ export default function AboutPage() {
 
       <InfoSection title="What you won't find here">
         <p>
-          Breaking news — by the time we publish, the wires have already moved. Opinion columns — we surface framings
-          and omissions, we do not tell readers which side is right. Partisan takedowns — we critique coverage, not
-          the politics underneath it. Scraped wire copy with a new headline.
+          Clickbait. Empty outrage. Rewritten wire copy with no extra value. The aim here is straightforward: reduce
+          noise, expose framing choices, and give readers a cleaner signal than typical mainstream coverage.
         </p>
       </InfoSection>
 
       <InfoSection title="Editorial independence and funding">
         <p>
-          Sypher News is a solo project, funded out of pocket and, eventually, by display advertising served by
-          Google AdSense. Advertisers have no influence over editorial content; ad placement is programmatic and Aaron
-          does not see individual advertiser identities before or during publication.
+          Sypher News is an independent project. Revenue and monetization never determine coverage decisions, and no
+          external commercial partner directs editorial output.
         </p>
       </InfoSection>
     </InfoPage>

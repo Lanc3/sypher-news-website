@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import type { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { SiteContainer } from "@/components/site-container";
+import { COUNTRY_CATEGORY_SLUGS } from "@/lib/category-utils";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 60;
@@ -13,6 +14,7 @@ export const metadata: Metadata = {
 };
 
 const categoryListArgs = {
+  where: { slug: { notIn: COUNTRY_CATEGORY_SLUGS } },
   orderBy: { name: "asc" as const },
   include: { _count: { select: { topics: true as const } } },
 } satisfies Prisma.CategoryFindManyArgs;

@@ -1,5 +1,6 @@
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
+import { COUNTRY_CATEGORY_SLUGS } from "@/lib/category-utils";
 
 export const articlePublicInclude = {
   topic: { include: { category: true } },
@@ -94,37 +95,50 @@ export async function listRelatedArticles(articleId: number, categoryId: number,
 
 export async function listHomepageSections() {
   try {
-    const [featured, latest, categories] = await Promise.all([
+    const [featured, latest, homepageCategoryFeatures] = await Promise.all([
       listFeaturedArticles(4),
-      listRecentArticles(18),
-      prisma.category.findMany({
-        orderBy: { name: "asc" },
+      prisma.article.findMany({
+        where: {
+          status: "PUBLISHED",
+          topic: { category: { slug: { notIn: COUNTRY_CATEGORY_SLUGS } } },
+        },
+        orderBy: publicOrderBy,
+        take: 18,
+        include: articlePublicInclude,
+      }),
+      prisma.homepageCategoryFeature.findMany({
+        orderBy: [{ position: "asc" }, { id: "asc" }],
         include: {
-          topics: {
+          category: {
             include: {
-              articles: {
-                where: { status: "PUBLISHED" },
-                orderBy: publicOrderBy,
+              topics: {
+                include: {
+                  articles: {
+                    where: { status: "PUBLISHED" },
+                    orderBy: publicOrderBy,
+                    take: 3,
+                    include: articlePublicInclude,
+                  },
+                },
                 take: 3,
-                include: articlePublicInclude,
               },
             },
-            take: 3,
           },
         },
       }),
     ]);
 
+    const configuredCategoryGroups = homepageCategoryFeatures
+      .map((row) => ({
+        category: row.category,
+        articles: row.category.topics.flatMap((topic) => topic.articles).slice(0, 3),
+      }))
+      .filter((group) => group.articles.length > 0);
+
     return {
       featured,
       latest,
-      categoryGroups: categories
-        .map((category) => ({
-          category,
-          articles: category.topics.flatMap((topic) => topic.articles).slice(0, 3),
-        }))
-        .filter((group) => group.articles.length > 0)
-        .slice(0, 4),
+      categoryGroups: configuredCategoryGroups,
     };
   } catch {
     return { featured: [], latest: [], categoryGroups: [] };

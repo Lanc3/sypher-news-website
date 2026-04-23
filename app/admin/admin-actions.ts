@@ -6,6 +6,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import type { AdSlot, ArticleStatus } from "@prisma/client";
 import { isReservedArticleSlug } from "@/lib/reserved-slugs";
+import { COUNTRY_CATEGORY_SLUGS } from "@/lib/category-utils";
 
 async function requireUser() {
   const session = await auth();
@@ -134,6 +135,42 @@ export async function updateAdPlacementAction(raw: z.infer<typeof placementUpdat
   revalidatePath("/", "layout");
   revalidatePath("/admin");
   revalidatePath("/admin/ads");
+  return { ok: true as const };
+}
+
+export async function updateHomepageFeaturedCategoriesAction(formData: FormData) {
+  await requireUser();
+
+  const parsedIds = formData
+    .getAll("categoryIds")
+    .map((value) => Number(value))
+    .filter((id) => Number.isInteger(id) && id > 0);
+
+  const requestedIds = Array.from(new Set(parsedIds));
+  const allowedIds = requestedIds.length
+    ? await prisma.category.findMany({
+        where: {
+          id: { in: requestedIds },
+          slug: { notIn: COUNTRY_CATEGORY_SLUGS },
+        },
+        select: { id: true },
+      })
+    : [];
+  const allowedSet = new Set(allowedIds.map((row) => row.id));
+  const orderedAllowedIds = requestedIds.filter((id) => allowedSet.has(id));
+
+  await prisma.$transaction([
+    prisma.homepageCategoryFeature.deleteMany({}),
+    ...orderedAllowedIds.map((categoryId, index) =>
+      prisma.homepageCategoryFeature.create({
+        data: { categoryId, position: index },
+      }),
+    ),
+  ]);
+
+  revalidatePath("/");
+  revalidatePath("/admin");
+  revalidatePath("/admin/homepage");
   return { ok: true as const };
 }
 

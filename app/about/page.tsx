@@ -26,7 +26,7 @@ export default function AboutPage() {
       <InfoSection title="Who runs Sypher News">
         <p>
           Sypher News is written and edited by <strong>Aaron Keating</strong>, an independent business owner and
-          critical reader based in Lancashire, UK. Aaron is not a career journalist; he is a long-time consumer of
+          critical reader based in Carlow, Ireland. Aaron is not a career journalist; he is a long-time consumer of
           news who became frustrated with how the same story would read like three different events depending on which
           outlet he opened first. Sypher News is the project that grew out of that frustration.
         </p>

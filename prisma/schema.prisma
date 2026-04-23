@@ -64,8 +64,20 @@ model Category {
   createdAt       DateTime                 @default(now()) @map("created_at")
   topics          Topic[]
   userPreferences UserCategoryPreference[]
+  homepageFeatures HomepageCategoryFeature[]
 
   @@map("categories")
+}
+
+model HomepageCategoryFeature {
+  id         Int      @id @default(autoincrement())
+  categoryId Int      @unique @map("category_id")
+  position   Int      @default(0)
+  createdAt  DateTime @default(now()) @map("created_at")
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@index([position])
+  @@map("homepage_category_features")
 }
 
 model Topic {

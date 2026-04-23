@@ -138,7 +138,7 @@ export async function updateAdPlacementAction(raw: z.infer<typeof placementUpdat
   return { ok: true as const };
 }
 
-export async function updateHomepageFeaturedCategoriesAction(formData: FormData) {
+export async function updateHomepageFeaturedCategoriesAction(formData: FormData): Promise<void> {
   await requireUser();
 
   const parsedIds = formData
@@ -171,7 +171,6 @@ export async function updateHomepageFeaturedCategoriesAction(formData: FormData)
   revalidatePath("/");
   revalidatePath("/admin");
   revalidatePath("/admin/homepage");
-  return { ok: true as const };
 }
 
 const articleSaveSchema = z.object({

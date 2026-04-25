@@ -77,6 +77,7 @@ export default async function RootLayout({
             }),
           }}
         />
+        <link rel="icon" href="/favicon.ico" sizes="any" />
       </head>
       <body className={`${mono.className} relative flex min-h-dvh flex-col bg-[#070a12] text-[#e0e0e0] antialiased`}>
         <Providers>

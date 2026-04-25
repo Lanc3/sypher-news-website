@@ -16,6 +16,9 @@ import { ClaimMap } from "@/components/claim-map";
 import { PerspectiveSpectrum } from "@/components/perspective-spectrum";
 import { DisassemblyTabs } from "@/components/disassembly-tabs";
 import { ArticleTTSPlayer } from "@/components/article-tts-player";
+import { AiDisclosurePill } from "@/components/ai-disclosure-pill";
+import { ArticleOriginalityBadges } from "@/components/article-originality-badges";
+import { CoverImageFallback } from "@/components/cover-image-fallback";
 import { isArticleSaved } from "@/app/actions/feed";
 
 /** Avoid caching notFound/redirect decisions while articles are ingested after deploy. */
@@ -166,7 +169,7 @@ export default async function ArticlePage({ params }: Props) {
                   <span className="text-[#bc13fe]/80">alignment: {article.articleAlignmentLabel}</span>
                 ) : null}
               </div>
-              <div className="mt-4 flex flex-wrap items-center gap-2 text-sm text-[#a7a7a7]">
+              <div className="mt-4 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-[#a7a7a7]">
                 <span className="font-mono uppercase tracking-[0.2em] text-[#666]">By</span>
                 <Link
                   href="/about"
@@ -175,7 +178,23 @@ export default async function ArticlePage({ params }: Props) {
                 >
                   Aaron Keating
                 </Link>
+                <span className="text-[#555]" aria-hidden>·</span>
+                <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-[#888] sm:text-xs">
+                  Editor-in-chief
+                </span>
+                <span className="text-[#555]" aria-hidden>·</span>
+                <span className="italic text-[#888]">AI-assisted draft, human-reviewed</span>
               </div>
+
+              <div className="mt-4">
+                <AiDisclosurePill />
+              </div>
+
+              <ArticleOriginalityBadges
+                sourcesCount={article.sources?.length ?? 0}
+                confidenceDashboard={confidenceDashboard}
+                perspectiveSpectrum={perspectiveSpectrum}
+              />
 
               {heroImageSrc ? (
                 <figure className="mt-6 overflow-hidden rounded-lg border border-[#00e8ff]/15 bg-black">
@@ -188,7 +207,45 @@ export default async function ArticlePage({ params }: Props) {
                     className="aspect-[16/9] h-auto w-full object-cover"
                   />
                 </figure>
-              ) : null}
+              ) : (
+                <figure className="mt-6">
+                  <CoverImageFallback
+                    title={article.title}
+                    categoryName={article.topic.category.name}
+                    variant="hero"
+                  />
+                </figure>
+              )}
+
+              <aside className="mt-6 rounded-md border border-[#00e8ff]/15 bg-black/40 px-4 py-3 text-[13px] leading-relaxed text-[#a8a8a8] sm:text-sm">
+                <p>
+                  <strong className="text-[#e0e0e0]">About this article.</strong> Researched by Sypher's pipeline from{" "}
+                  <strong className="text-[#e0e0e0]">{article.sources?.length ?? 0} sources</strong>, then reviewed
+                  and published by{" "}
+                  <Link
+                    href="/about"
+                    className="text-[#bc13fe] underline decoration-[#bc13fe]/40 underline-offset-4 hover:decoration-[#bc13fe]"
+                  >
+                    Aaron Keating
+                  </Link>{" "}
+                  on {(article.publishedAt || article.createdAt).toISOString().slice(0, 10)}. Last updated{" "}
+                  {article.updatedAt.toISOString().slice(0, 10)}. See our{" "}
+                  <Link
+                    href="/methodology"
+                    className="text-[#bc13fe] underline decoration-[#bc13fe]/40 underline-offset-4 hover:decoration-[#bc13fe]"
+                  >
+                    methodology
+                  </Link>{" "}
+                  and{" "}
+                  <Link
+                    href="/corrections"
+                    className="text-[#bc13fe] underline decoration-[#bc13fe]/40 underline-offset-4 hover:decoration-[#bc13fe]"
+                  >
+                    corrections policy
+                  </Link>
+                  .
+                </p>
+              </aside>
 
               <div className="mt-6">
                 <ArticleTTSPlayer title={article.title} bodyMarkdown={article.bodyMarkdown} />

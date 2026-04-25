@@ -1,5 +1,4 @@
 import { prisma } from "@/lib/prisma";
-import { AdminStatCard } from "@/components/admin-stat-card";
 
 export const dynamic = "force-dynamic";
 
@@ -9,25 +8,26 @@ export default async function AdminAnalyticsPage() {
   const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
   const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
 
-  const [todayViews, weekViews, monthViews, newsletterEvents, shareEvents, adClicks, topViewed, recentEvents] = await Promise.all([
-    prisma.pageView.count({ where: { createdAt: { gte: dayAgo } } }),
-    prisma.pageView.count({ where: { createdAt: { gte: weekAgo } } }),
-    prisma.pageView.count({ where: { createdAt: { gte: monthAgo } } }),
-    prisma.analyticsEvent.count({ where: { type: "NEWSLETTER_SUBMIT", createdAt: { gte: monthAgo } } }),
-    prisma.analyticsEvent.count({ where: { type: "SHARE", createdAt: { gte: monthAgo } } }),
-    prisma.adClick.count({ where: { createdAt: { gte: monthAgo } } }),
-    prisma.pageView.groupBy({
-      by: ["articleId"],
-      where: { articleId: { not: null }, createdAt: { gte: monthAgo } },
-      _count: { articleId: true },
-      orderBy: { _count: { articleId: "desc" } },
-      take: 10,
-    }),
-    prisma.analyticsEvent.findMany({
-      orderBy: { createdAt: "desc" },
-      take: 25,
-    }),
-  ]);
+  const [todayViews, weekViews, monthViews, newsletterEvents, shareEvents, adClicks, topViewed, recentEvents] =
+    await Promise.all([
+      prisma.pageView.count({ where: { createdAt: { gte: dayAgo } } }),
+      prisma.pageView.count({ where: { createdAt: { gte: weekAgo } } }),
+      prisma.pageView.count({ where: { createdAt: { gte: monthAgo } } }),
+      prisma.analyticsEvent.count({ where: { type: "NEWSLETTER_SUBMIT", createdAt: { gte: monthAgo } } }),
+      prisma.analyticsEvent.count({ where: { type: "SHARE", createdAt: { gte: monthAgo } } }),
+      prisma.adClick.count({ where: { createdAt: { gte: monthAgo } } }),
+      prisma.pageView.groupBy({
+        by: ["articleId"],
+        where: { articleId: { not: null }, createdAt: { gte: monthAgo } },
+        _count: { articleId: true },
+        orderBy: { _count: { articleId: "desc" } },
+        take: 10,
+      }),
+      prisma.analyticsEvent.findMany({
+        orderBy: { createdAt: "desc" },
+        take: 25,
+      }),
+    ]);
 
   const topArticleIds = topViewed.map((row) => row.articleId).filter((id): id is number => id != null);
   const topArticles = topArticleIds.length
@@ -36,54 +36,87 @@ export default async function AdminAnalyticsPage() {
         include: { topic: { include: { category: true } } },
       })
     : [];
-  const topArticleMap = new Map(topArticles.map((article) => [article.id, article]));
+  const topArticleMap = new Map(topArticles.map((a) => [a.id, a]));
 
   return (
-    <div className="space-y-8 font-mono">
-      <h1 className="text-2xl text-[#00e8ff]">Analytics</h1>
-      <p className="max-w-3xl text-sm text-[#888]">
-        Audience and revenue analytics are grouped into time windows so the newsroom can monitor readership, sharing, subscriptions, and AdSense interactions.
-      </p>
+    <div className="space-y-6 font-mono">
+      <div>
+        <p className="text-[10px] uppercase tracking-[0.3em] text-[#444]">Growth</p>
+        <h1 className="mt-1 text-xl font-semibold text-[#e0e0e0]">Analytics</h1>
+        <p className="mt-1 text-sm text-[#666]">
+          Audience and revenue grouped into time windows.
+        </p>
+      </div>
 
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <AdminStatCard label="Page views today" value={todayViews} hint={`${weekViews} in the last 7 days`} />
-        <AdminStatCard label="30-day page views" value={monthViews} hint="Rolling traffic window" />
-        <AdminStatCard label="Newsletter submits" value={newsletterEvents} hint="Last 30 days" />
-        <AdminStatCard label="30-day ad clicks" value={adClicks} hint={`${shareEvents} share actions in the same window`} />
+      {/* Stat tiles */}
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        {[
+          { label: "Views today", value: todayViews, sub: `${weekViews} this week` },
+          { label: "30-day views", value: monthViews, sub: "rolling window" },
+          { label: "Newsletter submits", value: newsletterEvents, sub: "last 30 days" },
+          { label: "Ad clicks", value: adClicks, sub: `${shareEvents} shares` },
+        ].map((tile) => (
+          <div
+            key={tile.label}
+            className="rounded-lg border border-[#00e8ff]/10 bg-black/50 p-4"
+          >
+            <p className="text-[10px] uppercase tracking-[0.2em] text-[#444]">{tile.label}</p>
+            <p className="mt-1.5 font-mono text-2xl font-bold text-[#bc13fe]">{tile.value}</p>
+            <p className="mt-0.5 text-[11px] text-[#555]">{tile.sub}</p>
+          </div>
+        ))}
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <section className="rounded-lg border border-[#00e8ff]/20 bg-black/40 p-4">
-          <h2 className="mb-3 text-lg text-[#e0e0e0]">Top stories (30 days)</h2>
-          <ul className="space-y-2 text-sm text-[#aaa]">
-            {topViewed.map((row) => {
-              const article = row.articleId != null ? topArticleMap.get(row.articleId) : null;
-              return (
-                <li key={String(row.articleId)} className="flex items-center justify-between gap-4 border-b border-[#222] py-2">
-                  <span className="truncate">
-                    {article ? `${article.title} · ${article.topic.category.name}` : "Unknown article"}
-                  </span>
-                  <span className="shrink-0 text-[#bc13fe]">{row._count.articleId}</span>
-                </li>
-              );
-            })}
+        <section className="rounded-lg border border-[#00e8ff]/10 bg-black/40">
+          <div className="border-b border-[#00e8ff]/10 px-5 py-4">
+            <h2 className="text-sm font-semibold text-[#bc13fe]">Top stories</h2>
+            <p className="mt-0.5 text-xs text-[#555]">Last 30 days by page views</p>
+          </div>
+          <ul className="divide-y divide-[#00e8ff]/5">
+            {topViewed.length === 0 ? (
+              <li className="px-5 py-8 text-center text-sm text-[#555]">No article traffic yet.</li>
+            ) : (
+              topViewed.map((row) => {
+                const article = row.articleId != null ? topArticleMap.get(row.articleId) : null;
+                return (
+                  <li key={String(row.articleId)} className="flex items-center justify-between gap-4 px-5 py-3">
+                    <span className="truncate text-xs text-[#888]">
+                      {article ? article.title : "Unknown article"}
+                      {article ? <span className="text-[#444]"> · {article.topic.category.name}</span> : null}
+                    </span>
+                    <span className="shrink-0 font-mono text-sm font-semibold text-[#bc13fe]">
+                      {row._count.articleId}
+                    </span>
+                  </li>
+                );
+              })
+            )}
           </ul>
-          {topViewed.length === 0 ? <p className="text-sm text-[#666]">No article traffic yet.</p> : null}
         </section>
 
-        <section className="rounded-lg border border-[#00e8ff]/20 bg-black/40 p-4">
-          <h2 className="mb-3 text-lg text-[#e0e0e0]">Recent event stream</h2>
-          <ul className="space-y-2 text-sm text-[#aaa]">
-            {recentEvents.map((event) => (
-              <li key={event.id} className="flex items-center justify-between gap-4 border-b border-[#222] py-2">
-                <span className="truncate">
-                  {event.type} {event.path ? `· ${event.path}` : ""}
-                </span>
-                <span className="shrink-0 text-[#666]">{event.createdAt.toISOString().slice(0, 19)}</span>
-              </li>
-            ))}
+        <section className="rounded-lg border border-[#00e8ff]/10 bg-black/40">
+          <div className="border-b border-[#00e8ff]/10 px-5 py-4">
+            <h2 className="text-sm font-semibold text-[#bc13fe]">Event stream</h2>
+            <p className="mt-0.5 text-xs text-[#555]">Latest 25 events</p>
+          </div>
+          <ul className="divide-y divide-[#00e8ff]/5">
+            {recentEvents.length === 0 ? (
+              <li className="px-5 py-8 text-center text-sm text-[#555]">No telemetry yet.</li>
+            ) : (
+              recentEvents.map((event) => (
+                <li key={event.id} className="flex items-center justify-between gap-4 px-5 py-2.5">
+                  <span className="truncate text-xs text-[#888]">
+                    {event.type}
+                    {event.path ? <span className="text-[#555]"> · {event.path}</span> : null}
+                  </span>
+                  <span className="shrink-0 text-[11px] tabular-nums text-[#3a3a4a]">
+                    {event.createdAt.toISOString().slice(0, 19).replace("T", " ")}
+                  </span>
+                </li>
+              ))
+            )}
           </ul>
-          {recentEvents.length === 0 ? <p className="text-sm text-[#666]">No telemetry yet.</p> : null}
         </section>
       </div>
     </div>

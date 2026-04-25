@@ -21,42 +21,62 @@ export default async function AdminHomepageSettingsPage() {
   const selectedIds = new Set(featuredRows.map((row) => row.categoryId));
 
   return (
-    <div className="space-y-6 font-mono">
+    <div className="space-y-5 font-mono">
       <div>
-        <h1 className="text-2xl text-[#00e8ff]">Homepage settings</h1>
-        <p className="mt-2 max-w-3xl text-sm text-[#888]">
-          Select which non-country categories appear in the homepage Featured by category section.
+        <p className="text-[10px] uppercase tracking-[0.3em] text-[#444]">Content</p>
+        <h1 className="mt-1 text-xl font-semibold text-[#e0e0e0]">Homepage settings</h1>
+        <p className="mt-1 text-sm text-[#666]">
+          Choose which categories appear in the homepage channel highlights section.
         </p>
       </div>
 
-      <form action={updateHomepageFeaturedCategoriesAction} className="space-y-5 rounded border border-[#00e8ff]/15 bg-black/40 p-4 sm:p-5">
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {categories.map((category) => (
-            <label
-              key={category.id}
-              className="flex min-h-20 cursor-pointer items-start gap-3 rounded border border-[#00e8ff]/10 bg-black/30 p-3 hover:border-[#00e8ff]/40"
-            >
-              <input
-                type="checkbox"
-                name="categoryIds"
-                value={category.id}
-                defaultChecked={selectedIds.has(category.id)}
-                className="mt-1 h-4 w-4 rounded border-[#555] bg-black text-[#00e8ff] focus:ring-[#00e8ff]/50"
-              />
-              <span>
-                <span className="block text-sm text-[#e0e0e0]">{category.name}</span>
-                <span className="mt-1 block text-xs text-[#666]">/{category.slug}</span>
-                {category.description ? <span className="mt-1 block text-xs text-[#888]">{category.description}</span> : null}
-              </span>
-            </label>
-          ))}
-        </div>
+      <form action={updateHomepageFeaturedCategoriesAction} className="space-y-5">
+        {categories.length === 0 ? (
+          <div className="rounded-lg border border-dashed border-[#00e8ff]/15 bg-black/30 py-12 text-center">
+            <p className="text-sm text-[#555]">No non-country categories available.</p>
+          </div>
+        ) : (
+          <div className="grid gap-2.5 sm:grid-cols-2 lg:grid-cols-3">
+            {categories.map((category) => {
+              const checked = selectedIds.has(category.id);
+              return (
+                <label
+                  key={category.id}
+                  className={`flex cursor-pointer items-start gap-3 rounded-lg border p-4 transition ${
+                    checked
+                      ? "border-[#00e8ff]/40 bg-[#00e8ff]/5"
+                      : "border-[#00e8ff]/10 bg-black/40 hover:border-[#00e8ff]/25"
+                  }`}
+                >
+                  <input
+                    type="checkbox"
+                    name="categoryIds"
+                    value={category.id}
+                    defaultChecked={checked}
+                    className="mt-1 size-4 rounded border-[#444] bg-black accent-[#00e8ff]"
+                  />
+                  <span className="min-w-0">
+                    <span className={`block text-sm font-medium ${checked ? "text-[#00e8ff]" : "text-[#d0d0d0]"}`}>
+                      {category.name}
+                    </span>
+                    <span className="mt-0.5 block text-[11px] text-[#444]">/{category.slug}</span>
+                    {category.description ? (
+                      <span className="mt-1 block text-xs leading-relaxed text-[#666]">
+                        {category.description}
+                      </span>
+                    ) : null}
+                  </span>
+                </label>
+              );
+            })}
+          </div>
+        )}
 
-        {categories.length === 0 ? <p className="text-sm text-[#777]">No non-country categories are available.</p> : null}
-
-        <div className="flex items-center justify-between gap-3 border-t border-[#00e8ff]/10 pt-4">
-          <p className="text-xs text-[#777]">Leave all unchecked to hide the section until categories are selected.</p>
-          <Button type="submit">Save homepage categories</Button>
+        <div className="flex items-center justify-between gap-4 rounded-lg border border-[#00e8ff]/10 bg-black/40 px-5 py-4">
+          <p className="text-xs text-[#555]">
+            Leave all unchecked to hide the section until categories are selected.
+          </p>
+          <Button type="submit">Save settings</Button>
         </div>
       </form>
     </div>

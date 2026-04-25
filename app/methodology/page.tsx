@@ -12,7 +12,7 @@ export default function MethodologyPage() {
     <InfoPage
       eyebrow="Methodology"
       title="How every Sypher News article is built — and how to check our work"
-      intro="Each article passes through four automated stages before any human editing. We publish the intermediate artefacts alongside the article so readers can audit the reasoning."
+      intro="Each article passes through four research-pipeline stages and a final human editorial review before publication. We publish the intermediate artefacts alongside the article so readers can audit the reasoning."
     >
       <InfoSection title="The pipeline">
         <p>

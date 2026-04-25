@@ -27,7 +27,7 @@ export function HomeHero({ countryArticleCounts }: { countryArticleCounts: Recor
         {/* Left: headline + CTAs + feature grid */}
         <div className="flex flex-col justify-center px-5 py-10 sm:px-8 sm:py-12 lg:px-10 lg:py-14">
           <p className="text-magenta-glow font-mono text-[10px] font-medium uppercase tracking-[0.35em] text-[#bc13fe] sm:text-xs">
-            Media analysis, not another news site
+            AI-assisted research · Human editorial review
           </p>
           <h1 className="text-neon-glow mt-4 font-mono text-[1.65rem] font-bold leading-tight tracking-tight text-[#00e8ff] sm:text-4xl lg:text-[2.6rem]">
             The news you read has already been framed.{" "}

@@ -2,6 +2,7 @@ import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeSanitize, { defaultSchema } from "rehype-sanitize";
 import { cn } from "@/lib/utils";
+import { preprocessArticleMarkdown } from "@/lib/markdown-preprocess";
 
 const schema = {
   ...defaultSchema,
@@ -13,6 +14,7 @@ const schema = {
 };
 
 export function MarkdownBody({ content, className }: { content: string; className?: string }) {
+  const processed = preprocessArticleMarkdown(content);
   return (
     <div
       className={cn(
@@ -43,7 +45,7 @@ export function MarkdownBody({ content, className }: { content: string; classNam
           ),
         }}
       >
-        {content}
+        {processed}
       </Markdown>
     </div>
   );

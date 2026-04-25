@@ -12,15 +12,17 @@ export const revalidate = 60;
 export const metadata: Metadata = {
   title: "Disassemble the headline",
   description:
-    "Sypher News uses AI-driven deep research to generate articles, categories, and topics from current global news as part of a fully automated news system.",
+    "Sypher News combines AI-assisted multi-source research with human editorial review to surface how mainstream outlets framed today's stories — including whose voices are missing and which claims are verified.",
   openGraph: {
     title: "Sypher News",
-    description: "AI-generated deep-research coverage built toward a fully automated news system.",
+    description:
+      "AI-assisted deep research with human editorial review — framing comparisons, verified claims, and the voices left out of mainstream coverage.",
   },
   twitter: {
     card: "summary_large_image",
     title: "Sypher News",
-    description: "AI-generated deep-research coverage built toward a fully automated news system.",
+    description:
+      "AI-assisted deep research with human editorial review — framing comparisons, verified claims, and the voices left out of mainstream coverage.",
   },
 };
 

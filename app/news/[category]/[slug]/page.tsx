@@ -16,6 +16,7 @@ import { ClaimMap } from "@/components/claim-map";
 import { PerspectiveSpectrum } from "@/components/perspective-spectrum";
 import { DisassemblyTabs } from "@/components/disassembly-tabs";
 import { ArticleTTSPlayer } from "@/components/article-tts-player";
+import { isArticleSaved } from "@/app/actions/feed";
 
 /** Avoid caching notFound/redirect decisions while articles are ingested after deploy. */
 export const dynamic = "force-dynamic";
@@ -83,6 +84,7 @@ export default async function ArticlePage({ params }: Props) {
       : null;
   const articleUrl = `${siteUrl()}${path}`;
   const heroImageSrc = article.coverImageUrl?.trim() || article.coverImageThumbnailUrl?.trim() || null;
+  const initiallySaved = await isArticleSaved(article.id);
 
   function safeJson<T>(raw: string | null | undefined): T | null {
     if (!raw) return null;
@@ -253,7 +255,12 @@ export default async function ArticlePage({ params }: Props) {
                   articleAlignmentRationale={article.articleAlignmentRationale}
                 />
 
-                <ShareActions url={articleUrl} title={article.title} />
+                <ShareActions
+                  articleId={article.id}
+                  url={articleUrl}
+                  title={article.title}
+                  initialSaved={initiallySaved}
+                />
 
                 <aside className="panel rounded-lg border border-[#00e8ff]/15 bg-black/40 px-5 py-5 sm:px-6 sm:py-6">
                   <p className="font-mono text-[10px] font-medium uppercase tracking-[0.2em] text-[#bc13fe] sm:text-xs">About the author</p>

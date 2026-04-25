@@ -1,6 +1,7 @@
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { COUNTRY_CATEGORY_SLUGS } from "@/lib/category-utils";
+import { SLUG_TO_COUNTRY } from "@/lib/countries";
 
 export const articlePublicInclude = {
   topic: { include: { category: true } },
@@ -116,7 +117,7 @@ export async function listHomepageSections() {
                   articles: {
                     where: { status: "PUBLISHED" },
                     orderBy: publicOrderBy,
-                    take: 3,
+                    take: 2,
                     include: articlePublicInclude,
                   },
                 },
@@ -131,7 +132,10 @@ export async function listHomepageSections() {
     const configuredCategoryGroups = homepageCategoryFeatures
       .map((row) => ({
         category: row.category,
-        articles: row.category.topics.flatMap((topic) => topic.articles).slice(0, 3),
+        articles: row.category.topics
+          .flatMap((topic) => topic.articles)
+          .sort((a, b) => (b.publishedAt || b.createdAt).getTime() - (a.publishedAt || a.createdAt).getTime())
+          .slice(0, 2),
       }))
       .filter((group) => group.articles.length > 0);
 
@@ -142,6 +146,44 @@ export async function listHomepageSections() {
     };
   } catch {
     return { featured: [], latest: [], categoryGroups: [] };
+  }
+}
+
+export async function getCountryArticleCounts() {
+  try {
+    const topicCounts = await prisma.article.groupBy({
+      by: ["topicId"],
+      where: { status: "PUBLISHED" },
+      _count: { _all: true },
+    });
+
+    if (topicCounts.length === 0) return {};
+
+    const topics = await prisma.topic.findMany({
+      where: { id: { in: topicCounts.map((row) => row.topicId) } },
+      select: {
+        id: true,
+        category: { select: { slug: true } },
+      },
+    });
+
+    const topicToSlug = new Map<number, string>();
+    for (const topic of topics) {
+      topicToSlug.set(topic.id, topic.category.slug);
+    }
+
+    const countsByCode: Record<string, number> = {};
+    for (const row of topicCounts) {
+      const slug = topicToSlug.get(row.topicId);
+      if (!slug) continue;
+      const country = SLUG_TO_COUNTRY.get(slug);
+      if (!country) continue;
+      countsByCode[country.code] = (countsByCode[country.code] || 0) + row._count._all;
+    }
+
+    return countsByCode;
+  } catch {
+    return {};
   }
 }
 

@@ -1,8 +1,10 @@
 import Link from "next/link";
+import { HomeHeroGlobe } from "@/components/home-hero-globe";
 
-export function HomeHero() {
+export function HomeHero({ countryArticleCounts }: { countryArticleCounts: Record<string, number> }) {
   return (
     <section className="panel px-5 py-10 text-center sm:px-8 sm:py-14">
+      <HomeHeroGlobe countryArticleCounts={countryArticleCounts} />
       <p className="text-magenta-glow font-mono text-[10px] font-medium uppercase tracking-[0.35em] text-[#bc13fe] sm:text-xs">
         Media analysis, not another news site
       </p>

@@ -56,14 +56,13 @@ export async function registerClient(
 }
 
 export async function updateCategoryPreferences(categoryIds: number[]) {
-  const session = await auth();
-  if (!session?.user?.id) throw new Error("Unauthorized");
+  const userId = await requireUserId();
 
   await prisma.$transaction([
-    prisma.userCategoryPreference.deleteMany({ where: { userId: session.user.id } }),
+    prisma.userCategoryPreference.deleteMany({ where: { userId } }),
     ...categoryIds.map((categoryId) =>
       prisma.userCategoryPreference.create({
-        data: { userId: session.user.id, categoryId },
+        data: { userId, categoryId },
       }),
     ),
   ]);
@@ -122,4 +121,90 @@ export async function getAllCategories() {
     orderBy: { name: "asc" },
     select: { id: true, slug: true, name: true, description: true },
   });
+}
+
+async function requireUserId(): Promise<string> {
+  const session = await auth();
+  if (!session?.user?.id) throw new Error("Unauthorized");
+  return session.user.id;
+}
+
+export async function getSavedArticleIds(): Promise<number[]> {
+  const userId = await requireUserId();
+  const saved = await prisma.savedArticle.findMany({
+    where: { userId },
+    select: { articleId: true },
+  });
+  return saved.map((item) => item.articleId);
+}
+
+export async function isArticleSaved(articleId: number): Promise<boolean> {
+  const session = await auth();
+  if (!session?.user?.id) return false;
+  const saved = await prisma.savedArticle.findUnique({
+    where: { userId_articleId: { userId: session.user.id, articleId } },
+    select: { id: true },
+  });
+  return Boolean(saved);
+}
+
+export async function getSavedArticles(page = 1, pageSize = 30) {
+  const userId = await requireUserId();
+
+  const [savedRows, total] = await Promise.all([
+    prisma.savedArticle.findMany({
+      where: { userId, article: { status: "PUBLISHED" } },
+      orderBy: { createdAt: "desc" },
+      skip: (page - 1) * pageSize,
+      take: pageSize,
+      include: {
+        article: {
+          include: {
+            topic: { include: { category: true } },
+          },
+        },
+      },
+    }),
+    prisma.savedArticle.count({
+      where: { userId, article: { status: "PUBLISHED" } },
+    }),
+  ]);
+
+  return {
+    articles: savedRows.map((row) => ({
+      ...row.article,
+      savedAt: row.createdAt,
+    })),
+    total,
+  };
+}
+
+export async function saveArticleForLater(articleId: number) {
+  const userId = await requireUserId();
+
+  const article = await prisma.article.findUnique({
+    where: { id: articleId },
+    select: { id: true, status: true },
+  });
+  if (!article || article.status !== "PUBLISHED") {
+    throw new Error("Article not available");
+  }
+
+  await prisma.savedArticle.upsert({
+    where: { userId_articleId: { userId, articleId } },
+    update: {},
+    create: { userId, articleId },
+  });
+
+  return { ok: true };
+}
+
+export async function removeSavedArticle(articleId: number) {
+  const userId = await requireUserId();
+
+  await prisma.savedArticle.deleteMany({
+    where: { userId, articleId },
+  });
+
+  return { ok: true };
 }

@@ -196,6 +196,7 @@ export function GlobalNewsroomClient({
               {articles.map((a) => (
                 <li key={a.id}>
                   <ArticleCard
+                    articleId={a.id}
                     href={`/news/${a.categorySlug}/${a.slug}`}
                     title={a.title}
                     summary={a.summary}

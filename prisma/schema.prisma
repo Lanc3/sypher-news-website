@@ -52,6 +52,7 @@ model User {
   updatedAt           DateTime                 @updatedAt @map("updated_at")
   articleRevisions    ArticleRevision[]        @relation("EditorRevisions")
   categoryPreferences UserCategoryPreference[]
+  savedArticles       SavedArticle[]
 
   @@map("users")
 }
@@ -162,12 +163,27 @@ model Article {
   authorLinks                ArticleAuthor[]
   revisions                  ArticleRevision[]
   corrections                CorrectionNotice[]
+  savedByUsers               SavedArticle[]
 
   @@index([topicId])
   @@index([createdAt])
   @@index([status, createdAt])
   @@index([featured, createdAt])
   @@map("articles")
+}
+
+model SavedArticle {
+  id        String   @id @default(cuid())
+  userId    String   @map("user_id")
+  articleId Int      @map("article_id")
+  createdAt DateTime @default(now()) @map("created_at")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  article   Article  @relation(fields: [articleId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, articleId])
+  @@index([userId, createdAt])
+  @@index([articleId])
+  @@map("saved_articles")
 }
 
 model ArticleAuthor {

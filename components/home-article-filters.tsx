@@ -17,6 +17,7 @@ export type HomeArticle = {
 };
 
 export function HomeArticleFilters({ articles }: { articles: HomeArticle[] }) {
+  const MAX_VISIBLE_ARTICLES = 12;
   const [category, setCategory] = useState<string>("all");
   const [minTransparency, setMinTransparency] = useState(0);
   const [fromDate, setFromDate] = useState("");
@@ -42,6 +43,7 @@ export function HomeArticleFilters({ articles }: { articles: HomeArticle[] }) {
       return true;
     });
   }, [articles, category, minTransparency, fromDate]);
+  const visibleArticles = filtered.slice(0, MAX_VISIBLE_ARTICLES);
 
   const inputClass =
     "min-h-11 w-full rounded-md border border-[#00e8ff]/30 bg-[#080808] px-3 py-2 text-sm text-[#e0e0e0] shadow-inner shadow-black/40 transition focus:border-[#00e8ff]/60 focus:outline-none focus:ring-1 focus:ring-[#00e8ff]/40";
@@ -82,10 +84,11 @@ export function HomeArticleFilters({ articles }: { articles: HomeArticle[] }) {
         </div>
       </div>
 
-      <ul className="grid gap-4 sm:grid-cols-2 sm:gap-5 lg:gap-6">
-        {filtered.map((a) => (
+      <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4 sm:gap-4 lg:gap-5">
+        {visibleArticles.map((a) => (
           <li key={a.id}>
             <ArticleCard
+              articleId={a.id}
               href={`/news/${a.categorySlug}/${a.slug}`}
               title={a.title}
               summary={a.summary}
@@ -94,10 +97,17 @@ export function HomeArticleFilters({ articles }: { articles: HomeArticle[] }) {
               transparency={a.transparency}
               coverImageUrl={a.coverImageUrl}
               coverImageThumbnailUrl={a.coverImageThumbnailUrl}
+              compact
             />
           </li>
         ))}
       </ul>
+      {filtered.length > MAX_VISIBLE_ARTICLES ? (
+        <p className="text-xs text-[#777] sm:text-sm">
+          Showing the first {MAX_VISIBLE_ARTICLES} stories ({filtered.length - MAX_VISIBLE_ARTICLES} more match
+          your filters).
+        </p>
+      ) : null}
       {filtered.length === 0 ? (
         <p className="rounded-md border border-dashed border-[#00e8ff]/25 bg-black/30 py-10 text-center text-sm text-[#666]">
           No articles match filters.

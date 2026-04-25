@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { auth } from "@/auth";
 import { ArticleCard } from "@/components/article-card";
 import { HomeHero } from "@/components/home-hero";
 import { HomeSection } from "@/components/home-section";
 import { HomeArticleFilters, type HomeArticle } from "@/components/home-article-filters";
 import { SiteContainer } from "@/components/site-container";
-import { listHomepageSections } from "@/lib/article-public";
+import { getCountryArticleCounts, listHomepageSections } from "@/lib/article-public";
 
 export const revalidate = 60;
 
@@ -25,7 +26,12 @@ export const metadata: Metadata = {
 };
 
 export default async function HomePage() {
-  const { featured, latest, categoryGroups } = await listHomepageSections();
+  const [session, { featured, latest, categoryGroups }, countryArticleCounts] = await Promise.all([
+    auth(),
+    listHomepageSections(),
+    getCountryArticleCounts(),
+  ]);
+  const hasSignedInUser = Boolean(session?.user);
   const articles: HomeArticle[] = latest
     .filter((a) => a.topic?.category)
     .map((a) => ({
@@ -45,7 +51,7 @@ export default async function HomePage() {
   return (
     <main id="main-content" className="flex-1 py-10 sm:py-14 lg:py-16">
       <SiteContainer max="lg" className="space-y-12 sm:space-y-16 lg:space-y-20">
-        <HomeHero />
+        <HomeHero countryArticleCounts={countryArticleCounts} />
 
         {featured.length > 0 ? (
           <HomeSection
@@ -57,6 +63,7 @@ export default async function HomePage() {
               {featured.map((article) => (
                 <ArticleCard
                   key={article.id}
+                  articleId={article.id}
                   href={`/news/${article.topic.category.slug}/${article.slug}`}
                   title={article.title}
                   summary={article.summary}
@@ -76,13 +83,52 @@ export default async function HomePage() {
           </HomeSection>
         ) : null}
 
+        <HomeSection
+          eyebrow="Wire"
+          title="Latest wire"
+          description="Filter the latest AI-generated stories produced through deep research on current news across the globe."
+        >
+          <HomeArticleFilters articles={articles} />
+        </HomeSection>
+
+        <HomeSection
+          eyebrow="Personalize"
+          title={hasSignedInUser ? "Here is your feed" : "Build your custom news feed"}
+          description={
+            hasSignedInUser
+              ? undefined
+              : "Create an account to personalize your feed and follow the stories, regions, and categories that matter most to you."
+          }
+        >
+          <div className="panel flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
+            <div className="space-y-2">
+              <p className="font-mono text-base text-[#f5f7ff] sm:text-lg">
+                {hasSignedInUser
+                  ? "You are signed in - your personalized feed is ready."
+                  : "Sign up to unlock a feed tailored to your interests."}
+              </p>
+              <p className="text-sm text-[#9aa3c7]">
+                {hasSignedInUser
+                  ? "Open your feed to continue with the topics and categories you already selected."
+                  : "Save your preferences and get a personalized stream instead of a one-size-fits-all wire."}
+              </p>
+            </div>
+            <Link
+              href={hasSignedInUser ? "/feed" : "/feed/register"}
+              className="inline-flex items-center justify-center rounded-md border border-[#00e8ff]/60 bg-[#00e8ff]/10 px-4 py-2 text-sm font-medium text-[#00e8ff] transition hover:bg-[#00e8ff]/20"
+            >
+              {hasSignedInUser ? "Go to your feed" : "Sign up for a custom feed"}
+            </Link>
+          </div>
+        </HomeSection>
+
         {categoryGroups.length > 0 ? (
           <HomeSection
             eyebrow="Channels"
             title="Featured by category"
             description="Quick access to the latest reporting by channel without losing the story hierarchy."
           >
-            <div className="grid gap-6 lg:grid-cols-2">
+            <div className="grid gap-6">
               {categoryGroups.map((group) => (
                 <div key={group.category.id} className="panel p-4 sm:p-5">
                   <div className="mb-4 flex items-center justify-between gap-4">
@@ -98,10 +144,11 @@ export default async function HomePage() {
                       View channel
                     </Link>
                   </div>
-                  <div className="grid gap-4">
+                  <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                     {group.articles.map((article) => (
                       <ArticleCard
                         key={article.id}
+                        articleId={article.id}
                         href={`/news/${article.topic.category.slug}/${article.slug}`}
                         title={article.title}
                         summary={article.summary}
@@ -122,14 +169,6 @@ export default async function HomePage() {
             </div>
           </HomeSection>
         ) : null}
-
-        <HomeSection
-          eyebrow="Wire"
-          title="Latest wire"
-          description="Filter the latest AI-generated stories produced through deep research on current news across the globe."
-        >
-          <HomeArticleFilters articles={articles} />
-        </HomeSection>
       </SiteContainer>
     </main>
   );

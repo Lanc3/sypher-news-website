@@ -119,6 +119,10 @@ export default async function AdminHomePage() {
           <h2 className="text-[#bc13fe]">Authors</h2>
           <p className="mt-2 text-xs text-[#777]">Bylines, bios, and archive pages</p>
         </Link>
+        <Link href="/admin/categories" className="rounded-lg border border-[#00e8ff]/25 bg-black/50 p-4 hover:border-[#00e8ff]/60">
+          <h2 className="text-[#bc13fe]">Categories</h2>
+          <p className="mt-2 text-xs text-[#777]">Delete categories with linked topics and articles</p>
+        </Link>
         <Link href="/admin/homepage" className="rounded-lg border border-[#00e8ff]/25 bg-black/50 p-4 hover:border-[#00e8ff]/60">
           <h2 className="text-[#bc13fe]">Homepage</h2>
           <p className="mt-2 text-xs text-[#777]">Choose categories for homepage channel highlights</p>

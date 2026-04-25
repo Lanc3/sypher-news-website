@@ -8,6 +8,7 @@ import type { ReactNode } from "react";
 const links = [
   { href: "/admin", label: "Dashboard", section: "Core" },
   { href: "/admin/articles", label: "Articles", section: "Content" },
+  { href: "/admin/categories", label: "Categories", section: "Content" },
   { href: "/admin/authors", label: "Authors", section: "Content" },
   { href: "/admin/homepage", label: "Homepage", section: "Content" },
   { href: "/admin/ads", label: "Revenue", section: "Revenue" },

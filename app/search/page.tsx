@@ -56,6 +56,7 @@ export default async function SearchPage({ searchParams }: Props) {
                 {results.map((article) => (
                   <ArticleCard
                     key={article.id}
+                    articleId={article.id}
                     href={`/news/${article.topic.category.slug}/${article.slug}`}
                     title={article.title}
                     summary={article.summary}

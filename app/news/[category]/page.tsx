@@ -50,6 +50,7 @@ export default async function CategoryArticlesPage({ params }: Props) {
           {articles.map((a) => (
             <li key={a.id}>
               <ArticleCard
+                articleId={a.id}
                 href={`/news/${category.slug}/${a.slug}`}
                 title={a.title}
                 summary={a.summary}

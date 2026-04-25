@@ -6,7 +6,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import type { AdSlot, ArticleStatus } from "@prisma/client";
 import { isReservedArticleSlug } from "@/lib/reserved-slugs";
-import { COUNTRY_CATEGORY_SLUGS } from "@/lib/category-utils";
+import { COUNTRY_CATEGORY_SLUGS, isCountryCategorySlug } from "@/lib/category-utils";
 
 async function requireUser() {
   const session = await auth();
@@ -64,6 +64,12 @@ export async function deleteArticleFormAction(formData: FormData): Promise<void>
   await deleteArticleAction(id);
 }
 
+export async function deleteCategoryFormAction(formData: FormData): Promise<void> {
+  const id = Number(formData.get("id"));
+  if (!Number.isFinite(id)) return;
+  await deleteCategoryAction(id);
+}
+
 export async function deleteArticleAction(id: number) {
   await requireUser();
   const art = await prisma.article.findUnique({
@@ -84,6 +90,49 @@ export async function deleteArticleAction(id: number) {
   });
 
   revalidateArticlePaths(categorySlug, articleSlug);
+  return { ok: true as const };
+}
+
+export async function deleteCategoryAction(id: number) {
+  await requireUser();
+  const category = await prisma.category.findUnique({
+    where: { id },
+    select: { id: true, slug: true },
+  });
+  if (!category) return { ok: false as const, error: "Not found" };
+  if (isCountryCategorySlug(category.slug)) {
+    return { ok: false as const, error: "Country categories cannot be deleted" };
+  }
+
+  await prisma.$transaction(async (tx) => {
+    const topics = await tx.topic.findMany({
+      where: { categoryId: id },
+      select: { id: true },
+    });
+    const topicIds = topics.map((topic) => topic.id);
+
+    if (topicIds.length > 0) {
+      await tx.article.deleteMany({
+        where: { topicId: { in: topicIds } },
+      });
+    }
+
+    await tx.topic.deleteMany({
+      where: { categoryId: id },
+    });
+
+    await tx.category.delete({
+      where: { id },
+    });
+  });
+
+  revalidatePath("/");
+  revalidatePath("/news");
+  revalidatePath(`/news/${category.slug}`);
+  revalidatePath("/admin");
+  revalidatePath("/admin/articles");
+  revalidatePath("/admin/homepage");
+  revalidatePath("/admin/categories");
   return { ok: true as const };
 }
 

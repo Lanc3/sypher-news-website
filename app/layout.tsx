@@ -59,7 +59,11 @@ export default async function RootLayout({
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9029459573777442"
           crossOrigin="anonymous"
         />
+        <link rel="icon" href="/favicon.ico" sizes="any" />
+      </head>
+      <body className={`${mono.className} relative flex min-h-dvh flex-col bg-[#070a12] text-[#e0e0e0] antialiased`}>
         <script
+          id="ld-json-organization"
           type="application/ld+json"
           dangerouslySetInnerHTML={{
             __html: JSON.stringify({
@@ -77,9 +81,6 @@ export default async function RootLayout({
             }),
           }}
         />
-        <link rel="icon" href="/favicon.ico" sizes="any" />
-      </head>
-      <body className={`${mono.className} relative flex min-h-dvh flex-col bg-[#070a12] text-[#e0e0e0] antialiased`}>
         <Providers>
           <AdProviderClient placements={placements}>
             <NavigationProgress />

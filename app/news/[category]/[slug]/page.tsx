@@ -20,6 +20,7 @@ import { AiDisclosurePill } from "@/components/ai-disclosure-pill";
 import { ArticleOriginalityBadges } from "@/components/article-originality-badges";
 import { CoverImageFallback } from "@/components/cover-image-fallback";
 import { isArticleSaved } from "@/app/actions/feed";
+import { ensureLedeOpening } from "@/lib/markdown-preprocess";
 
 /** Avoid caching notFound/redirect decisions while articles are ingested after deploy. */
 export const dynamic = "force-dynamic";
@@ -88,6 +89,7 @@ export default async function ArticlePage({ params }: Props) {
   const articleUrl = `${siteUrl()}${path}`;
   const heroImageSrc = article.coverImageUrl?.trim() || article.coverImageThumbnailUrl?.trim() || null;
   const initiallySaved = await isArticleSaved(article.id);
+  const articleBody = ensureLedeOpening(article.bodyMarkdown, article.summary);
 
   function safeJson<T>(raw: string | null | undefined): T | null {
     if (!raw) return null;
@@ -165,7 +167,8 @@ export default async function ArticlePage({ params }: Props) {
                     Transparency index ~{transparency}
                   </span>
                 ) : null}
-                {article.articleAlignmentLabel ? (
+                {article.articleAlignmentLabel &&
+                !["mixed", "unknown", "n/a", "none"].includes(article.articleAlignmentLabel.toLowerCase()) ? (
                   <span className="text-[#bc13fe]/80">alignment: {article.articleAlignmentLabel}</span>
                 ) : null}
               </div>
@@ -248,7 +251,7 @@ export default async function ArticlePage({ params }: Props) {
               </aside>
 
               <div className="mt-6">
-                <ArticleTTSPlayer title={article.title} bodyMarkdown={article.bodyMarkdown} />
+                <ArticleTTSPlayer title={article.title} bodyMarkdown={articleBody} />
               </div>
 
               <div className="mt-8 space-y-10 sm:mt-10">
@@ -273,7 +276,7 @@ export default async function ArticlePage({ params }: Props) {
                     :: DISASSEMBLY
                   </h2>
                   <DisassemblyTabs
-                    bodyMarkdown={article.bodyMarkdown}
+                    bodyMarkdown={articleBody}
                     researchMarkdown={article.researchMarkdown}
                   />
                 </section>

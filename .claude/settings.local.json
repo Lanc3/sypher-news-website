@@ -5,7 +5,10 @@
       "Bash(npx tsx *)",
       "Bash(npx tsc *)",
       "Bash(git add *)",
-      "Bash(git commit -m ' *)"
+      "Bash(git commit -m ' *)",
+      "Bash(node -e ' *)",
+      "Bash(lsof -ti:3002)",
+      "Bash(xargs kill *)"
     ]
   }
 }

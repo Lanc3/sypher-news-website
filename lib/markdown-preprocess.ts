@@ -47,9 +47,31 @@ function buildSupMarkdown(urls: string[], registry: Map<string, number>): string
   return parts.join("");
 }
 
+// Matches AI-leaked patterns like:
+//   [Source: cnet.com](https://example.com/path)
+//   [source: example.com](https://example.com)
+// — replaced with a numbered superscript pointing to the URL.
+const SOURCE_LABEL_LINK_RE = /\[\s*[Ss]ource:\s*[^\]]+\]\(\s*(https?:\/\/[^\s)]+)\s*\)/g;
+
+// Matches the "Further Reading" footer pattern with mismatched bracket+paren:
+//   [https://example.com/path] (https://example.com/path)
+// (the URL repeats inside both brackets and parens with whitespace between them).
+const BRACKET_PAREN_LINK_RE = /\[\s*(https?:\/\/[^\s\]]+)\s*\]\s*\(\s*\1\s*\)/g;
+
 function replaceCitations(input: string): string {
   const registry = new Map<string, number>();
-  const withSups = input.replace(URL_CITATION_RE, (match, group: string) => {
+
+  // Step 1: collapse "[https://x] (https://x)" → "[https://x]" so the
+  // standard bracket-citation pass below can convert it to a superscript.
+  let working = input.replace(BRACKET_PAREN_LINK_RE, "[$1]");
+
+  // Step 2: convert "[Source: domain](url)" → numbered superscript link.
+  working = working.replace(SOURCE_LABEL_LINK_RE, (_match, url: string) => {
+    return buildSupMarkdown([url], registry);
+  });
+
+  // Step 3: convert bare "[https://...]" / "[https://...,https://...]" citations.
+  working = working.replace(URL_CITATION_RE, (match, group: string) => {
     const urls = group
       .split(/\s*,\s*/)
       .map((u) => u.trim())
@@ -57,7 +79,12 @@ function replaceCitations(input: string): string {
     if (urls.length === 0) return match;
     return buildSupMarkdown(urls, registry);
   });
-  return withSups;
+
+  // Step 4: clean stray trailing `]` immediately after a markdown link
+  // (pattern: "](url)]" — common AI typo where bracket nesting got confused).
+  working = working.replace(/(\]\([^)]+\))\]/g, "$1");
+
+  return working;
 }
 
 const LATEX_REPLACEMENTS: Array<[RegExp, string]> = [
@@ -90,4 +117,35 @@ function stripLatex(input: string): string {
 export function preprocessArticleMarkdown(content: string): string {
   if (!content) return content;
   return replaceCitations(stripLatex(content));
+}
+
+// AI-pipeline articles often open with a meta-header like
+// "# How Sources Framed This" — second-order analysis of other coverage rather
+// than a news lede. To improve perceived value (and AdSense compliance), when
+// the body opens that way and we have an article summary, prepend the summary
+// as a "Lede" section and rename the meta-header to a less prominent H2.
+const META_OPENING_HEADERS = [
+  /^#\s+How Sources Framed This\b/m,
+  /^#\s+Whose Voice Is Missing\b/m,
+  /^#\s+Media Coverage\b/im,
+  /^#\s+Coverage\b/im,
+];
+
+export function ensureLedeOpening(bodyMarkdown: string, summary: string | null | undefined): string {
+  if (!bodyMarkdown) return bodyMarkdown;
+  const trimmed = bodyMarkdown.trimStart();
+  const hasMetaOpening = META_OPENING_HEADERS.some((re) => re.test(trimmed.split("\n").slice(0, 2).join("\n")));
+  if (!hasMetaOpening) return bodyMarkdown;
+  const cleanSummary = (summary ?? "").trim();
+  const lede = cleanSummary
+    ? `${cleanSummary}\n\n## Source Comparison\n\n`
+    : `## Source Comparison\n\n`;
+  // Demote the leaked H1 to an H2 (we just inserted our own H2 above), and
+  // demote the "Whose Voice Is Missing" H1 → H2 too so the document has a
+  // single logical heading hierarchy.
+  let rewritten = trimmed
+    .replace(/^#\s+How Sources Framed This\b/m, "")
+    .replace(/^#\s+Whose Voice Is Missing\b/m, "## Gaps in Coverage");
+  rewritten = rewritten.replace(/^\s*\n+/, "");
+  return `${lede}${rewritten}`;
 }

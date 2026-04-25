@@ -113,9 +113,11 @@ export async function persistArticleIngest(
           title: data.title.slice(0, 1024),
         },
       });
+      const shouldStampPublishedAt = existing.status === "PUBLISHED" && existing.publishedAt == null;
       await tx.article.update({
         where: { id: existing.id },
         data: {
+          ...(shouldStampPublishedAt ? { publishedAt: new Date() } : {}),
           title: data.title.slice(0, 1024),
           bodyMarkdown: data.body_markdown,
           summary: data.summary ?? null,
@@ -162,6 +164,7 @@ export async function persistArticleIngest(
       data: {
         topicId: topic.id,
         slug: data.slug,
+        publishedAt: new Date(),
         title: data.title.slice(0, 1024),
         bodyMarkdown: data.body_markdown,
         summary: data.summary ?? null,

@@ -54,7 +54,12 @@ export function ArticleOriginalityBadges({
   const items: Array<{ label: string; value: string }> = [];
   if (sourcesCount > 0) items.push({ label: "sources analyzed", value: String(sourcesCount) });
   if (totalClaims) items.push({ label: "claims tracked", value: String(totalClaims) });
-  if (claimRate != null) items.push({ label: "claim verification", value: `${claimRate}%` });
+  // Surface the verification rate only when it is genuinely a positive signal.
+  // Below 50% reads as "mostly unverified" to a quick reviewer; the full
+  // breakdown remains visible in the Confidence Dashboard further down the page.
+  if (claimRate != null && claimRate >= 50) {
+    items.push({ label: "claim verification", value: `${claimRate}%` });
+  }
   if (framings > 0) items.push({ label: "framings compared", value: String(framings) });
   if (missingVoicesCount != null && missingVoicesCount > 0)
     items.push({ label: "missing voices identified", value: String(missingVoicesCount) });

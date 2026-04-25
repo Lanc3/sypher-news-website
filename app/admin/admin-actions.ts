@@ -92,17 +92,36 @@ export async function createAdminAccountFormAction(formData: FormData): Promise<
   if (!parsed.success) return;
 
   const email = parsed.data.email.toLowerCase().trim();
-  const existing = await prisma.user.findUnique({ where: { email }, select: { id: true } });
-  if (existing) return;
-
   const passwordHash = await hash(parsed.data.password, 12);
-  await prisma.user.create({
-    data: {
-      email,
-      passwordHash,
-      role: "ADMIN",
-    },
+
+  const existing = await prisma.user.findUnique({
+    where: { email },
+    select: { id: true, role: true },
   });
+
+  if (!existing) {
+    await prisma.user.create({
+      data: {
+        email,
+        passwordHash,
+        role: "ADMIN",
+      },
+    });
+  } else if (existing.role === "CLIENT") {
+    // Same email as an existing feed signup: promote to admin and set the new password.
+    await prisma.user.update({
+      where: { id: existing.id },
+      data: { role: "ADMIN", passwordHash },
+    });
+  } else if (existing.role === "ADMIN") {
+    await prisma.user.update({
+      where: { id: existing.id },
+      data: { passwordHash },
+    });
+  } else {
+    // EDITOR (or unknown): do not silently change role from this form.
+    return;
+  }
 
   revalidatePath("/admin/account-control");
 }
@@ -121,6 +140,21 @@ export async function deleteAdminAccountFormAction(formData: FormData): Promise<
 
   const adminCount = await prisma.user.count({ where: { role: "ADMIN" } });
   if (adminCount <= 1) return;
+
+  await prisma.user.delete({ where: { id } });
+  revalidatePath("/admin/account-control");
+}
+
+export async function deleteClientAccountFormAction(formData: FormData): Promise<void> {
+  const currentUser = await requireAdminUser();
+  const id = (formData.get("id") as string | null) ?? "";
+  if (!id || id === currentUser.id) return;
+
+  const target = await prisma.user.findUnique({
+    where: { id },
+    select: { id: true, role: true },
+  });
+  if (!target || target.role !== "CLIENT") return;
 
   await prisma.user.delete({ where: { id } });
   revalidatePath("/admin/account-control");

@@ -1,6 +1,10 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
-import { createAdminAccountFormAction, deleteAdminAccountFormAction } from "@/app/admin/admin-actions";
+import {
+  createAdminAccountFormAction,
+  deleteAdminAccountFormAction,
+  deleteClientAccountFormAction,
+} from "@/app/admin/admin-actions";
 import { redirect } from "next/navigation";
 
 export const dynamic = "force-dynamic";
@@ -30,13 +34,17 @@ export default async function AdminAccountControlPage() {
         <p className="text-[10px] uppercase tracking-[0.3em] text-[#444]">Security</p>
         <h1 className="mt-1 text-xl font-semibold text-[#e0e0e0]">Account Control</h1>
         <p className="mt-1 text-sm text-[#666]">
-          Manage administrator logins and view client accounts separately.
+          Manage administrator logins and client (feed) accounts separately.
         </p>
       </div>
 
       <section className="rounded-lg border border-[#00e8ff]/10 bg-black/40 p-5">
         <h2 className="text-sm font-semibold text-[#bc13fe]">Create admin account</h2>
-        <p className="mt-1 text-xs text-[#555]">New admin users can access all admin tools.</p>
+        <p className="mt-1 text-xs text-[#555]">
+          New admin users can access all admin tools. If the email already belongs to a feed client, that account is
+          promoted to admin (same login, new password you set here). If it is already an admin, only the password is
+          updated.
+        </p>
         <form action={createAdminAccountFormAction} className="mt-4 grid gap-3 sm:grid-cols-[1fr_1fr_auto]">
           <input
             type="email"
@@ -109,9 +117,20 @@ export default async function AdminAccountControlPage() {
         ) : (
           <ul className="divide-y divide-[#00e8ff]/5">
             {clientAccounts.map((account) => (
-              <li key={account.id} className="px-5 py-3">
-                <p className="truncate text-sm text-[#ddd]">{account.email}</p>
-                <p className="text-[11px] text-[#444]">Joined {account.createdAt.toLocaleString()}</p>
+              <li key={account.id} className="flex flex-wrap items-center justify-between gap-3 px-5 py-3">
+                <div className="min-w-0">
+                  <p className="truncate text-sm text-[#ddd]">{account.email}</p>
+                  <p className="text-[11px] text-[#444]">Joined {account.createdAt.toLocaleString()}</p>
+                </div>
+                <form action={deleteClientAccountFormAction}>
+                  <input type="hidden" name="id" value={account.id} />
+                  <button
+                    type="submit"
+                    className="rounded border border-red-500/25 px-3 py-1.5 text-xs text-red-400/70 transition hover:border-red-500/60 hover:text-red-300"
+                  >
+                    Delete
+                  </button>
+                </form>
               </li>
             ))}
           </ul>

@@ -7,11 +7,18 @@ import { z } from "zod";
 import type { AdSlot, ArticleStatus } from "@prisma/client";
 import { isReservedArticleSlug } from "@/lib/reserved-slugs";
 import { COUNTRY_CATEGORY_SLUGS, isCountryCategorySlug } from "@/lib/category-utils";
+import { hash } from "bcryptjs";
 
 async function requireUser() {
   const session = await auth();
   if (!session?.user?.id) throw new Error("Unauthorized");
   return session.user;
+}
+
+async function requireAdminUser() {
+  const user = await requireUser();
+  if (user.role !== "ADMIN") throw new Error("Forbidden");
+  return user;
 }
 
 function revalidateArticlePaths(categorySlug: string, articleSlug: string) {
@@ -68,6 +75,55 @@ export async function deleteCategoryFormAction(formData: FormData): Promise<void
   const id = Number(formData.get("id"));
   if (!Number.isFinite(id)) return;
   await deleteCategoryAction(id);
+}
+
+const createAdminAccountSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(8),
+});
+
+export async function createAdminAccountFormAction(formData: FormData): Promise<void> {
+  await requireAdminUser();
+
+  const parsed = createAdminAccountSchema.safeParse({
+    email: (formData.get("email") as string | null) ?? "",
+    password: (formData.get("password") as string | null) ?? "",
+  });
+  if (!parsed.success) return;
+
+  const email = parsed.data.email.toLowerCase().trim();
+  const existing = await prisma.user.findUnique({ where: { email }, select: { id: true } });
+  if (existing) return;
+
+  const passwordHash = await hash(parsed.data.password, 12);
+  await prisma.user.create({
+    data: {
+      email,
+      passwordHash,
+      role: "ADMIN",
+    },
+  });
+
+  revalidatePath("/admin/account-control");
+}
+
+export async function deleteAdminAccountFormAction(formData: FormData): Promise<void> {
+  const currentUser = await requireAdminUser();
+  const id = (formData.get("id") as string | null) ?? "";
+  if (!id) return;
+  if (id === currentUser.id) return;
+
+  const target = await prisma.user.findUnique({
+    where: { id },
+    select: { id: true, role: true },
+  });
+  if (!target || target.role !== "ADMIN") return;
+
+  const adminCount = await prisma.user.count({ where: { role: "ADMIN" } });
+  if (adminCount <= 1) return;
+
+  await prisma.user.delete({ where: { id } });
+  revalidatePath("/admin/account-control");
 }
 
 export async function deleteArticleAction(id: number) {

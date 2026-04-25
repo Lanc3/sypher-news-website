@@ -16,6 +16,7 @@ import {
   DollarSign,
   BarChart2,
   ChevronRight,
+  UserCog,
 } from "lucide-react";
 
 const navGroups = [
@@ -39,6 +40,10 @@ const navGroups = [
       { href: "/admin/analytics", label: "Analytics", icon: BarChart2, exact: false },
     ],
   },
+  {
+    label: "Security",
+    items: [{ href: "/admin/account-control", label: "Account Control", icon: UserCog, exact: false, adminOnly: true as const }],
+  },
 ] as const;
 
 function getPageLabel(pathname: string): string {
@@ -51,6 +56,7 @@ function getPageLabel(pathname: string): string {
   if (pathname.startsWith("/admin/homepage")) return "Homepage";
   if (pathname.startsWith("/admin/ads")) return "Revenue";
   if (pathname.startsWith("/admin/analytics")) return "Analytics";
+  if (pathname.startsWith("/admin/account-control")) return "Account Control";
   return "Admin";
 }
 

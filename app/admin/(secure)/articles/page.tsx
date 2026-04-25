@@ -6,7 +6,11 @@ import { Button } from "@/components/ui/button";
 export const dynamic = "force-dynamic";
 
 type Props = {
-  searchParams: Promise<{ q?: string; status?: string; category?: string }>;
+  searchParams: Promise<{
+    q?: string | string[];
+    status?: string | string[];
+    category?: string | string[];
+  }>;
 };
 
 const STATUSES = ["all", "PUBLISHED", "DRAFT", "SCHEDULED", "ARCHIVED"] as const;
@@ -28,7 +32,12 @@ const STATUS_STYLES: Record<string, string> = {
 };
 
 export default async function AdminArticlesPage({ searchParams }: Props) {
-  const { q = "", status = "all", category = "all" } = await searchParams;
+  const params = await searchParams;
+  const q = Array.isArray(params.q) ? (params.q[0] ?? "") : (params.q ?? "");
+  const status = Array.isArray(params.status) ? (params.status[0] ?? "all") : (params.status ?? "all");
+  const category = Array.isArray(params.category)
+    ? (params.category[0] ?? "all")
+    : (params.category ?? "all");
   const statusFilter =
     status === "DRAFT" || status === "SCHEDULED" || status === "PUBLISHED" || status === "ARCHIVED"
       ? status
@@ -115,8 +124,6 @@ export default async function AdminArticlesPage({ searchParams }: Props) {
               </button>
             );
           })}
-          <input type="hidden" name="q" value={q} />
-          <input type="hidden" name="category" value={category} />
         </div>
       </form>
 

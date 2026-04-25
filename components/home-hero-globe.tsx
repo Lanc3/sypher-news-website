@@ -3,12 +3,13 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
+import type { GeometryCollection, Topology } from "topojson-specification";
 import { CODE_TO_COUNTRY, type CountryEntry } from "@/lib/countries";
 
 type GlobeFeature = {
   type: string;
-  id: string;
-  properties: { name: string };
+  id?: string | number;
+  properties?: { name?: string };
   geometry: unknown;
 };
 
@@ -44,12 +45,10 @@ export function HomeHeroGlobe({ countryArticleCounts }: Props) {
       if (!mounted) return;
 
       const Globe = GlobeModule.default;
-      const world = worldData.default as {
-        objects: { countries: unknown };
-      };
-      const countries = topoModule.feature(world, world.objects.countries) as {
-        features: GlobeFeature[];
-      };
+      const world = worldData.default as unknown as Topology<{ countries: GeometryCollection }>;
+      const featureResult = topoModule.feature(world, world.objects.countries);
+      const rawFeatures = (featureResult as { features?: unknown }).features;
+      const countryFeatures = Array.isArray(rawFeatures) ? (rawFeatures as GlobeFeature[]) : [];
 
       const width = container.clientWidth;
       const height = Math.min(width, 460);
@@ -70,30 +69,34 @@ export function HomeHeroGlobe({ countryArticleCounts }: Props) {
             opacity: 0.9,
           }),
         )
-        .polygonsData(countries.features)
+        .polygonsData(countryFeatures)
         .polygonCapColor((d: unknown) => {
           const feat = d as GlobeFeature;
-          const count = countsByCode[feat.id] || 0;
+          const countryCode = String(feat.id ?? "");
+          const count = countsByCode[countryCode] || 0;
           if (count > 0) return "rgba(0, 232, 255, 0.16)";
           return "rgba(0, 232, 255, 0.03)";
         })
         .polygonSideColor(() => "rgba(0, 232, 255, 0.06)")
         .polygonStrokeColor((d: unknown) => {
           const feat = d as GlobeFeature;
-          const count = countsByCode[feat.id] || 0;
+          const countryCode = String(feat.id ?? "");
+          const count = countsByCode[countryCode] || 0;
           if (count > 0) return "rgba(0, 232, 255, 0.52)";
           return "rgba(0, 232, 255, 0.18)";
         })
         .polygonAltitude((d: unknown) => {
           const feat = d as GlobeFeature;
-          const count = countsByCode[feat.id] || 0;
+          const countryCode = String(feat.id ?? "");
+          const count = countsByCode[countryCode] || 0;
           return count > 0 ? 0.012 : 0.004;
         })
         .polygonLabel((d: unknown) => {
           const feat = d as GlobeFeature;
-          const entry: CountryEntry | undefined = CODE_TO_COUNTRY.get(feat.id);
-          const name = entry?.name || feat.properties.name || "Unknown";
-          const count = countsByCode[feat.id] || 0;
+          const countryCode = String(feat.id ?? "");
+          const entry: CountryEntry | undefined = CODE_TO_COUNTRY.get(countryCode);
+          const name = entry?.name || feat.properties?.name || "Unknown";
+          const count = countsByCode[countryCode] || 0;
           const noun = count === 1 ? "article" : "articles";
 
           return `<div style="font-family:monospace;background:rgba(7,10,18,0.92);border:1px solid rgba(0,232,255,0.3);padding:6px 10px;border-radius:6px;font-size:12px;color:#e0e0e0;">
@@ -108,9 +111,10 @@ export function HomeHeroGlobe({ countryArticleCounts }: Props) {
             return;
           }
           const feat = d as GlobeFeature;
-          const entry = CODE_TO_COUNTRY.get(feat.id);
-          const name = entry?.name || feat.properties.name || "Unknown";
-          const count = countsByCode[feat.id] || 0;
+          const countryCode = String(feat.id ?? "");
+          const entry = CODE_TO_COUNTRY.get(countryCode);
+          const name = entry?.name || feat.properties?.name || "Unknown";
+          const count = countsByCode[countryCode] || 0;
           setHovered({ name, count });
         })
         .onPolygonClick(() => {

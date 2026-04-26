@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
-import { InfoPage, InfoSection } from "@/components/info-page";
+import { PipelineDiagram } from "@/components/info-visuals/pipeline-diagram";
+import { VerificationTagLegend } from "@/components/info-visuals/verification-tag-legend";
+import { infoLinkMagenta, RichInfoPage, RichSection } from "@/components/rich-info-page";
 
 export const metadata: Metadata = {
   title: "Methodology",
@@ -7,14 +9,25 @@ export const metadata: Metadata = {
     "How every Sypher News article is built — the four-stage pipeline, verification tags, citation rules, and correction policy. Everything you need to audit our work.",
 };
 
+const tocItems = [
+  { id: "pipeline", label: "The pipeline" },
+  { id: "verification-tags", label: "Verification tags" },
+  { id: "citation-rules", label: "Citation rules" },
+  { id: "missing-voice", label: "Missing voice" },
+  { id: "correction-policy", label: "Correction policy" },
+  { id: "ai-disclosure", label: "AI disclosure" },
+];
+
 export default function MethodologyPage() {
   return (
-    <InfoPage
+    <RichInfoPage
       eyebrow="Methodology"
       title="How every Sypher News article is built — and how to check our work"
       intro="Each article passes through four research-pipeline stages and a final human editorial review before publication. We publish the intermediate artefacts alongside the article so readers can audit the reasoning."
+      heroVisual={<PipelineDiagram />}
+      tocItems={tocItems}
     >
-      <InfoSection title="The pipeline">
+      <RichSection id="pipeline" title="The pipeline" revealIndex={0}>
         <p>
           <strong className="text-[#e8e8e8]">1. Searcher.</strong> Runs 5–9 web queries across different angles
           (wire coverage, official statements, trade press, local reporting, critical analysis) and fetches the top
@@ -35,9 +48,9 @@ export default function MethodologyPage() {
           citation URLs, thin analysis, and missing sections. If anything fails, the article goes back for revision
           or is held from publication.
         </p>
-      </InfoSection>
+      </RichSection>
 
-      <InfoSection title="Verification tags">
+      <RichSection id="verification-tags" title="Verification tags" revealIndex={1}>
         <p>
           <strong className="text-[#e8e8e8]">VERIFIED</strong> — corroborated by three or more independent sources.
         </p>
@@ -54,44 +67,42 @@ export default function MethodologyPage() {
           checked against available evidence.
         </p>
         <p>The tags describe corroboration across cited URLs, not a judgment of truth.</p>
-      </InfoSection>
+        <VerificationTagLegend />
+      </RichSection>
 
-      <InfoSection title="Citation rules">
+      <RichSection id="citation-rules" title="Citation rules" revealIndex={2}>
         <p>Every article includes inline citations. No claim stands alone.</p>
         <p>URLs are validated against the actual fetched source list.</p>
         <p>Quotes are copied verbatim from the fetched extracts.</p>
         <p>
           When a source&apos;s framing is noted, we link to the specific article where that word choice appears.
         </p>
-      </InfoSection>
+      </RichSection>
 
-      <InfoSection title="What counts as a missing voice">
+      <RichSection id="missing-voice" title="What counts as a missing voice" revealIndex={3}>
         <p>
           A missing voice must be directly affected by the event, capable of answering a question the coverage
           cannot answer without them, and specific — &quot;critics&quot; or &quot;the public&quot; do not count.
         </p>
-      </InfoSection>
+      </RichSection>
 
-      <InfoSection title="Correction policy">
+      <RichSection id="correction-policy" title="Correction policy" revealIndex={4}>
         <p>
           When we are wrong, we fix the article inline and add a dated correction note at the end. We do not silently
           edit published pieces. Report errors:{" "}
-          <a
-            href="mailto:editor@sypher-news.com"
-            className="text-[#bc13fe] underline decoration-[#bc13fe]/40 underline-offset-4 hover:decoration-[#bc13fe]"
-          >
+          <a href="mailto:editor@sypher-news.com" className={infoLinkMagenta}>
             editor@sypher-news.com
           </a>
         </p>
-      </InfoSection>
+      </RichSection>
 
-      <InfoSection title="AI disclosure">
+      <RichSection id="ai-disclosure" title="AI disclosure" revealIndex={5}>
         <p>
           Sypher News articles are drafted by a local language model following the pipeline above. No third-party AI
           API sees the research stream. Each article is reviewed by a human editor (Aaron Keating) before
           publication.
         </p>
-      </InfoSection>
-    </InfoPage>
+      </RichSection>
+    </RichInfoPage>
   );
 }

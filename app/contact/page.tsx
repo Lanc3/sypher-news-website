@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
-import { InfoPage, InfoSection } from "@/components/info-page";
+import { ContactChannels } from "@/components/info-visuals/contact-channels";
+import { RichInfoPage } from "@/components/rich-info-page";
+import { Handshake, Mail, ShieldAlert } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Contact",
@@ -8,20 +10,22 @@ export const metadata: Metadata = {
 
 export default function ContactPage() {
   return (
-    <InfoPage
+    <RichInfoPage
       eyebrow="Contact"
       title="Reach the desk"
       intro="Use this page for editorial questions, correction requests, partnerships, and story tips."
+      heroVisual={
+        <div className="panel mx-auto flex max-w-[280px] items-center justify-center gap-6 px-6 py-8 sm:mx-0" aria-hidden>
+          <Mail className="h-10 w-10 text-[var(--neon)]/55 drop-shadow-[0_0_12px_rgba(var(--neon-rgb),0.35)]" />
+          <Handshake className="h-10 w-10 text-[var(--neon-pink)]/55 drop-shadow-[0_0_12px_rgba(var(--neon-pink-rgb),0.3)]" />
+          <ShieldAlert className="h-10 w-10 text-[var(--neon)]/45" />
+        </div>
+      }
+      tocItems={[]}
     >
-      <InfoSection title="Editorial">
-        <p>Email <a className="text-[#00e8ff] underline decoration-[#00e8ff]/40 underline-offset-4" href="mailto:editor@sypher.news">editor@sypher.news</a> for reporting questions, source notes, or correction requests.</p>
-      </InfoSection>
-      <InfoSection title="Partnerships">
-        <p>Email <a className="text-[#bc13fe] underline decoration-[#bc13fe]/40 underline-offset-4" href="mailto:partners@sypher.news">partners@sypher.news</a> for advertising, sponsorship, or distribution discussions.</p>
-      </InfoSection>
-      <InfoSection title="Tips">
-        <p>When sharing a tip, include links, timestamps, source material, and any framing concerns you believe deserve closer review.</p>
-      </InfoSection>
-    </InfoPage>
+      <div className="rich-reveal" style={{ animationDelay: "0ms" }}>
+        <ContactChannels />
+      </div>
+    </RichInfoPage>
   );
 }

@@ -128,3 +128,48 @@ body::before {
     animation: none;
   }
 }
+
+/* Rich info pages: section reveal */
+@keyframes richReveal {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.rich-reveal {
+  opacity: 0;
+  animation: richReveal 0.55s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rich-reveal {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
+
+/* Pipeline / diagram flow lines */
+@keyframes richFlowDash {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.rich-flow-line {
+  stroke-dasharray: 10 8;
+  stroke-dashoffset: 120;
+  animation: richFlowDash 2.2s ease-out forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rich-flow-line {
+    stroke-dashoffset: 0 !important;
+    animation: none !important;
+  }
+}

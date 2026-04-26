@@ -109,35 +109,23 @@ export async function listHomepageSections() {
       }),
       prisma.homepageCategoryFeature.findMany({
         orderBy: [{ position: "asc" }, { id: "asc" }],
-        include: {
-          category: {
-            include: {
-              topics: {
-                include: {
-                  articles: {
-                    where: { status: "PUBLISHED" },
-                    orderBy: publicOrderBy,
-                    take: 2,
-                    include: articlePublicInclude,
-                  },
-                },
-                take: 3,
-              },
-            },
-          },
-        },
+        include: { category: true },
       }),
     ]);
 
-    const configuredCategoryGroups = homepageCategoryFeatures
-      .map((row) => ({
-        category: row.category,
-        articles: row.category.topics
-          .flatMap((topic) => topic.articles)
-          .sort((a, b) => (b.publishedAt || b.createdAt).getTime() - (a.publishedAt || a.createdAt).getTime())
-          .slice(0, 2),
-      }))
-      .filter((group) => group.articles.length > 0);
+    const configuredCategoryGroups = (
+      await Promise.all(
+        homepageCategoryFeatures.map(async (row) => ({
+          category: row.category,
+          articles: await prisma.article.findMany({
+            where: { status: "PUBLISHED", topic: { categoryId: row.categoryId } },
+            orderBy: publicOrderBy,
+            take: 100,
+            include: articlePublicInclude,
+          }),
+        })),
+      )
+    ).filter((group) => group.articles.length > 0);
 
     return {
       featured,

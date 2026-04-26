@@ -8,7 +8,11 @@
       "Bash(git commit -m ' *)",
       "Bash(node -e ' *)",
       "Bash(lsof -ti:3002)",
-      "Bash(xargs kill *)"
+      "Bash(xargs kill *)",
+      "Bash(echo \"EXIT=$?\")",
+      "Bash(npx eslint *)",
+      "Bash(npm run *)",
+      "Bash(npx next *)"
     ]
   }
 }

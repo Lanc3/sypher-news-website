@@ -10,10 +10,10 @@ import { RelatedArticles } from "@/components/related-articles";
 import { ShareActions } from "@/components/share-actions";
 import { siteUrl } from "@/lib/site-url";
 import { SiteContainer } from "@/components/site-container";
-import { TransparencyPanel } from "@/components/transparency-panel";
-import { ConfidenceDashboard } from "@/components/confidence-dashboard";
-import { ClaimMap } from "@/components/claim-map";
-import { PerspectiveSpectrum } from "@/components/perspective-spectrum";
+import { ClaimStrengthChart } from "@/components/charts/claim-strength-chart";
+import { ClaimSourceNetwork } from "@/components/charts/claim-source-network";
+import { EvidenceRiskMap } from "@/components/charts/evidence-risk-map";
+import { PerspectiveCompass } from "@/components/charts/perspective-compass";
 import { DisassemblyTabs } from "@/components/disassembly-tabs";
 import { ArticleTTSPlayer } from "@/components/article-tts-player";
 import { AiDisclosurePill } from "@/components/ai-disclosure-pill";
@@ -269,7 +269,7 @@ export default async function ArticlePage({ params }: Props) {
                   </section>
                 ) : null}
 
-                <ConfidenceDashboard dashboard={confidenceDashboard} />
+                <ClaimStrengthChart dashboard={confidenceDashboard} claimMap={claimMap} />
 
                 <section>
                   <h2 className="mb-3 font-mono text-xs font-medium uppercase tracking-widest text-[#e0e0e0]/70 sm:text-sm">
@@ -297,16 +297,11 @@ export default async function ArticlePage({ params }: Props) {
                   </section>
                 )}
 
-                <ClaimMap claims={claimMap} />
+                <ClaimSourceNetwork claimMap={claimMap} />
 
-                <TransparencyPanel
-                  transparency={transparency}
-                  label={article.articleAlignmentLabel}
-                  sourceBalanceSummary={article.sourceBalanceSummary}
-                  rationale={article.articleAlignmentRationale}
-                />
+                <EvidenceRiskMap claimMap={claimMap} />
 
-                <PerspectiveSpectrum
+                <PerspectiveCompass
                   spectrum={perspectiveSpectrum}
                   sources={article.sources}
                   sourceBalanceSummary={article.sourceBalanceSummary}
